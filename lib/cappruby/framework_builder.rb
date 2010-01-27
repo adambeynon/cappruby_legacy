@@ -1,5 +1,5 @@
 # 
-# cappruby.rb
+# framework.rb
 # cappruby
 # 
 # Created by Adam Beynon.
@@ -24,50 +24,37 @@
 # THE SOFTWARE.
 #
 
-require 'yaml'
-require 'fileutils'
-require 'rubygems'
-# require 'vienna'
-require File.join(File.dirname(__FILE__), '..', '..', 'lib', 'vienna.rb')
-
 module CappRuby
   
-  ROOTPATH = File.join(File.dirname(__FILE__), '..')
-  
-  def self.tools(args)
+  # class used for building CappRuby framework
+  class FrameworkBuilder
     
-    cmd = args.shift
-    if cmd.nil? || cmd == "-h" || cmd == '--help'
-      print_usage
-      exit
+    attr_reader :build_dir
+    
+    def initialize
+      @app_root = Dir.getwd
+      @build_dir = File.join(Dir.getwd, 'frameworks', 'CappRuby')
     end
     
-    case cmd
-    when "gen"
-      gen args
-    when "build"
-      require_libs
-      AppBuilder.new(args).build!
-    when "-f"
-      puts "update frameworks"
-    else
-      print_usage
-      exit
+    def build!
+      FileUtils.mkdir_p build_dir
+      write_cappruby_j_file
+    end
+    
+    def cappruby_j_file
+      File.join(build_dir, 'CappRuby.j')
+    end
+    
+    def write_cappruby_j_file
+      File.open cappruby_j_file, 'w' do |f|
+        sources = File.join(ROOTPATH, 'framework', '**', '*.js')
+        Dir.glob(sources).each do |s|
+          i = File.read(s)
+          # should really minify
+          f.puts i
+        end
+      end
     end
     
   end
-  
-  def self.print_usage
-    puts "Usage: cappruby gen <app name>"
-  end
-  
-  def self.gen(args)
-    puts "gen.."
-  end
-  
-  def self.require_libs
-    libs = File.join(File.dirname(__FILE__), 'cappruby', '**', '*.rb')
-    Dir.glob(libs).each { |f| require f }
-  end
-  
 end

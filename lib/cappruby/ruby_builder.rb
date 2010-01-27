@@ -1,5 +1,5 @@
 # 
-# cappruby.rb
+# ruby_builder.rb
 # cappruby
 # 
 # Created by Adam Beynon.
@@ -24,50 +24,20 @@
 # THE SOFTWARE.
 #
 
-require 'yaml'
-require 'fileutils'
-require 'rubygems'
-# require 'vienna'
-require File.join(File.dirname(__FILE__), '..', '..', 'lib', 'vienna.rb')
-
 module CappRuby
   
-  ROOTPATH = File.join(File.dirname(__FILE__), '..')
-  
-  def self.tools(args)
+  class RubyBuilder < ::Vienna::RubyParser
     
-    cmd = args.shift
-    if cmd.nil? || cmd == "-h" || cmd == '--help'
-      print_usage
-      exit
+    def initialize(source, project, build_name)
+      super
     end
     
-    case cmd
-    when "gen"
-      gen args
-    when "build"
-      require_libs
-      AppBuilder.new(args).build!
-    when "-f"
-      puts "update frameworks"
-    else
-      print_usage
-      exit
+    def generate_tree(tree)
+      "function() { }"
     end
     
+    def generate_class(cls, context)
+      write "class"
+    end
   end
-  
-  def self.print_usage
-    puts "Usage: cappruby gen <app name>"
-  end
-  
-  def self.gen(args)
-    puts "gen.."
-  end
-  
-  def self.require_libs
-    libs = File.join(File.dirname(__FILE__), 'cappruby', '**', '*.rb')
-    Dir.glob(libs).each { |f| require f }
-  end
-  
 end

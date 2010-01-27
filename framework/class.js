@@ -1,6 +1,6 @@
 /* 
- * objj_additions.js
- * opal
+ * class.js
+ * cappruby
  * 
  * Created by Adam Beynon.
  * Copyright 2010 Adam Beynon.
@@ -24,23 +24,27 @@
  * THE SOFTWARE.
  */
 
-/**
-  CLS_SINGLETON
+function rb_define_class(id, super_class) {
+  var klass;
   
-  Identifiy objects as singletons (or more specifically, classes)
+  if (rb_const_defined(rb_cObject, id)) {
+    klass = rb_const_get(rb_cObject, id);
+    if ((super_class !== CPObject) && (klass.super_class !== super_class)) {
+      throw id + " already exists: different super value given"
+    }
+    return klass;
+  }
   
-  This is also a "nicer" way for handling KVO replacing classes.. makes the idea
-  more generic.
-*/
-CLS_SINGLETON = 0x16;
-
-/**
-  Duplicate class - for now a hack, need to actually do this.
-*/
-function objj_duplicateClass(klass, name) {
-  var c = objj_allocateClassPair(klass, name);
-  
-  objj_registerClassPair(c);
-  _class_initialize(c);
-  return c;
+  if (!super_class) {
+    // warning?
+    super_class = CPObject;
+  }
+  klass = objj_allocateClassPair(super_class, id);
+  // ivars? hmmm, probably dont need to.
+  objj_registerClassPair(klass);
+  // heh?
+  objj_addClassForBundle(klass, objj_getBundleWithPath(OBJJ_CURRENT_BUNDLE.path));
+  // do we need a class table? maybe not..
+  rb_const_set(rb_cObject, id, klass);
+  return klass;
 };
