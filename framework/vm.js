@@ -121,6 +121,15 @@ cr_b = function cr_send(recv, id, argv, blockiseq, op_flag) {
 };
 
 /**
+  getconstant
+*/
+cr_c = function cr_getconstant(base, id) {
+  // if base is an object, then use its class (base.isa)
+  if (base.isa.info & CLS_CLASS) base = base.isa;
+  return rb_const_get(base, id);
+};
+
+/**
   yield a block
   
   argv in array

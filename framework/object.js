@@ -48,6 +48,48 @@ function rb_f_puts(cls, sel, val) {
   return nil;
 };
 
+function rb_mod_attr_accessor(cls, sel) {
+  var i, a = Array.prototype.slice.call(arguments, 2);
+  for (i = 0; i < a.length; i++) {
+    rb_objj_define_kvo_getter(cls, a[i]);
+    rb_objj_define_kvo_setter(cls, a[i]);
+  }
+  return cls;
+};
+
+function rb_mod_attr_reader(cls, sel) {
+  var i, a = Array.prototype.slice.call(arguments, 2);
+  for (i = 0; i < a.length; i++) {
+    rb_objj_define_kvo_getter(cls, a[i]);
+  }
+  return cls;  
+};
+
+function rb_mod_attr_writer(cls, sel) {
+  var i, a = Array.prototype.slice.call(arguments, 2);
+  for (i = 0; i < a.length; i++) {
+    rb_objj_define_kvo_setter(cls, a[i]);
+  }
+  return cls;  
+};
+
+function rb_objj_define_kvo_setter(cls, id) {
+  id = objj_msgSend(id, "to_s");
+  var k = "set" + id.charAt(0).toUpperCase() + id.substr(1) + ":";
+  rb_define_method(cls, k, function(self, sel, val) {
+    var key = id;
+    return rb_ivar_set(self, key, val);
+  }, 1);
+};
+
+function rb_objj_define_kvo_getter(cls, id) {
+  id = objj_msgSend(id, "to_s");
+  rb_define_method(cls, id, function(self, sel, val) {
+    var key = id;
+    return rb_ivar_get(self, id);
+  }, 0);
+};
+
 function Init_Object() {
   
   rb_cObject = objj_getClass("CPObject");
@@ -78,4 +120,9 @@ function Init_Object() {
   */
   rb_define_method(rb_mKernel, "puts:", rb_f_puts, 1);
   rb_define_method(rb_cModule, "puts:", rb_f_puts, 1);
+  
+  // rb_define_method(rb_cModule, "attr:", rb_mod_attr, -1);
+  rb_define_method(rb_cModule, "attr_reader:", rb_mod_attr_reader, -1);
+  rb_define_method(rb_cModule, "attr_writer:", rb_mod_attr_writer, -1);
+  rb_define_method(rb_cModule, "attr_accessor:", rb_mod_attr_accessor, -1);
 };

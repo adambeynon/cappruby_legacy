@@ -37,3 +37,13 @@ function rb_const_defined(klass, id) {
   if (window[id] !== undefined) return true;
   return false;
 };
+
+function rb_const_get(klass, id) {
+  while (klass) {
+    if (klass[id] !== undefined) return klass[id];
+    klass = klass.super_class;
+  }
+  // try window scope..
+  if (window[id] !== undefined) return window[id];
+  throw "cannot find constant " + id;
+};

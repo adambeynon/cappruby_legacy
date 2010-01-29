@@ -1,7 +1,11 @@
 class AppController
   
+  attr_accessor :adam
+  
   def applicationWillFinishLaunching(notification)
     puts "Woohoo!"
+    # puts CPWindow.alloc.initWithContentRect(CPRect(100,100,100,100), 
+                        # styleMask:CPBorderlessBridgedWindowMask)
   end
   
   def applicationDidFinishLaunching(notification)

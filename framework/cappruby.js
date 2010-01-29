@@ -62,5 +62,7 @@ function cappruby_file(file, content) {
 function cappruby_init() {
   Init_Object();
   Init_Array();
+  Init_String();
+  Init_Proc();
   Init_VM();
 };

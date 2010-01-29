@@ -281,6 +281,14 @@ module CappRuby
       write %{"#{str[:value][0][:value]}"}
     end
     
+    def generate_symbol sym, context
+      write %{ID2SYM("#{sym[:name]}")}
+    end
+    
+    def generate_constant cnst, context
+      write %{cr_getconstant(_a,"#{cnst[:name]}")}
+    end
+    
     def generate_numeric num, context
       write num[:value]
     end
