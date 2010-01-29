@@ -38,8 +38,11 @@ cappruby_global_block = nil;
   namedArgs - ditto.
 */
 function cappruby_main(main_file, args, namedArgs) {
-  cappruby_trial(cappruby_top_self);
+  cappruby_init();
+  cappruby_file_hash['/lib/application.rb'](cappruby_top_self);
+  // cappruby_trial(cappruby_top_self);
   CPApplicationMain(args, namedArgs);
+  console.log("jere");
 };
 
 /**
@@ -50,7 +53,7 @@ function cappruby_main(main_file, args, namedArgs) {
     so to run it (on require), simply execute the content e.g. c();
 */
 function cappruby_file(file, content) {
-  
+  cappruby_file_hash[file] = content;
 };
 
 /**
@@ -64,6 +67,16 @@ function cappruby_method_t(name, imp, types) {
   
   // this is set to true if the method is a cappruby method
   this.capprubymethod = true;
+  // arity
+  this.arity = 0;
+};
+
+/**
+  call all cappruby inits
+*/
+function cappruby_init() {
+  Init_Object();
+  Init_VM();
 };
 
 /**

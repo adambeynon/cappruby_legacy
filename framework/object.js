@@ -24,9 +24,26 @@
  * THE SOFTWARE.
  */
 
+rb_cObject = nil;
+rb_cBasicObject = nil;
+rb_cModule = nil;
+rb_cClass = nil;
+
+function rb_basic_obj_alloc(cls, sel) {
+  return class_createInstance(cls);
+};
+
+function rb_module_s_alloc(mod, sel) {
+  return rb_module_new();
+};
+
+function rb_class_s_alloc(cls, sel) {
+  return rb_class_boot();
+};
+
 function Init_Object() {
   
-  rn_cObject = objj_getClass("CPObject");
+  rb_cObject = objj_getClass("CPObject");
   rb_const_set(rb_cObject, "Object", rb_cObject);
   
   rb_cBasicObject = objj_allocateClassPair(null, 'BasicObject');
@@ -35,4 +52,10 @@ function Init_Object() {
   
   rb_cModule = boot_defclass("Module", rb_cObject);
   rb_cClass = boot_defclass("Class", rb_cModule);
+  
+  rb_define_singleton_method(rb_cModule, "alloc", rb_module_s_alloc, 0);
+  rb_define_singleton_method(rb_cClass, "alloc", rb_class_s_alloc, 0);
+  
+  rb_include_module(rb_cObject.isa, rb_cClass);
+  rb_include_module(rb_cObject.isa, rb_cModule);
 };

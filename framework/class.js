@@ -48,3 +48,80 @@ function rb_define_class(id, super_class) {
   rb_const_set(rb_cObject, id, klass);
   return klass;
 };
+
+function rb_define_method(klass, id, func, arity) {
+  var m = new cappruby_method_t(id, func, []);
+  m.arity = arity;
+  
+  klass.method_list.push(m);
+  klass.method_dtable[id] = m;
+  m.method_imp.displayName = klass.name + "#" + id;
+  return true;
+};
+
+function rb_define_singleton_method(klass, id, func, arity) {
+  return rb_define_method(rb_singleton_class(klass), id, func, arity);
+};
+
+/**
+  Returns the singleton class. Meta classes are already singleton classes,
+  so this method just returns the meta class itself. Classes in objj are
+  not singleton, so a new class will be created, and returned, and then 
+  injected into the hierarchy. CLS_META identifies meta classes, while
+  CLS_CLASS identifies classes. A singleton class will have a CLS_SINGLETON
+  also, which is added on creation. Note, althogh a meta class is singleton,
+  it will not have a CLS_SINGLETON mask
+*/
+function rb_singleton_class(klass) {
+  if (klass.isa.info & CLS_CLASS) {
+    if (klass.isa.info & CLS_SINGLETON) {
+      // already a singleton
+      return klass.isa;
+    }
+    else {
+      // not a singleton, so make it one. keep same name
+      var s = objj_allocateClassPair(klass.isa, klass.isa.name);
+      _class_initialize(s);
+      s.info |= CLS_SINGLETON;
+      klass.isa = s;
+      return klass.isa;
+    }
+  }
+  else {
+    // meta class, so its already a singleton
+    return klass.isa;
+  }
+};
+
+function boot_defclass(id, superclass) {
+  var o = rb_class_boot(superclass, id);
+  // rb_class_tbl[id] = o;
+  rb_const_set((rb_cObject ? rb_cObject : o), id, o);
+  return o;
+};
+
+function rb_class_boot(superclass, name) {
+    return rb_objj_create_class(name, superclass);
+};
+
+function rb_objj_create_class(name, superclass) {
+    var RB_CLASS = 0;
+    return rb_objj_alloc_class(name, superclass, RB_CLASS, nil);
+};
+
+function rb_alloc_class(type, klass) {
+  var obj = new RClass();
+  obj.$klass = klass;
+  obj.$type = type;
+  return obj;
+};
+
+rb_anonymous_count = 0;
+
+function rb_objj_alloc_class(name, superclass, type, klass) {
+    name = name || ("RubyAnonymous" + rb_anonymous_count++);
+    superclass = superclass || rb_cObject;
+    var o = objj_allocateClassPair(superclass, name);
+    objj_registerClassPair(o);
+    return o;
+};

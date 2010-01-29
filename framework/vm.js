@@ -24,10 +24,6 @@
  * THE SOFTWARE.
  */
 
-cappruby_trial = function(self) {
-  cr_a(nil, nil, "AppController", function(self) { return nil; }, 0);
-};
-
 /**
   This isnt actually a vm. All the functions in here are what are called in the
   output in the compiled ruby. They are more efficient and handle the delecate
@@ -44,15 +40,53 @@ cappruby_trial = function(self) {
 cappruby_top_self = nil;
 
 /**
-  defineclass
+  Initialize vm
 */
-function cr_a(base, super_class, name, body, flag) {
+function Init_VM() {
+  cappruby_top_self = class_createInstance(rb_cObject);
+};
+
+/**
+  defineclass
+  
+  FIXME: this should really include arity as well.. number or array for complex
+*/
+cr_a = function cr_defineclass(base, super_class, name, body, flag) {
+  var klass;
   switch (flag) {
     case 0:
       if (super_class == nil) super_class = CPObject;
-      rb_define_class(name, super_class); 
+      klass = rb_define_class(name, super_class);
+      body(klass);
       break;
     default:
       throw "unknwon defineclass type"
   }
+};
+
+/**
+  definemethod
+*/
+cr_b = function cr_definemethod(base, id, body, is_singleton) {
+  // var m = new cappruby_method_t(id, body, []);
+  // arity? hmm, maybe..
+  if (is_singleton) {
+    throw "cr_b: singleton method not uet implemented"
+  }
+  else {
+    // arity?
+    rb_define_method(base, id, body, -1);
+    // base.method_list.push(m);
+    // base.method_dtable[id] = m;
+    // m.method_imp.displayName = base.name + "#" + id;
+  }
+};
+
+/**
+  send
+  
+  op_flag can be used to detect private calls etc
+*/
+cr_b = function cr_send(recv, id, argv, blockiseq, op_flag) {
+  
 };
