@@ -88,5 +88,44 @@ cr_b = function cr_definemethod(base, id, body, is_singleton) {
   op_flag can be used to detect private calls etc
 */
 cr_b = function cr_send(recv, id, argv, blockiseq, op_flag) {
+  var imp;
   
+  imp = rb_search_method(recv.isa, id);
+  // if we could not find it, try it with/without a colon on the end
+  if (!imp) {
+    if (id[id.length -1] == ":") {
+      // already has a colon.. so remove it and try
+    }
+    else {
+      // doesnt have a colon, so add one and try..
+    }
+  }
+  
+  if (!imp) {
+    throw "method missing: " + id
+  }
+  
+  // setup block - might be undefined, nil or null..
+  if (blockiseq != nil) cappruby_block = blockiseq;
+  
+  // do actual send message
+  switch (argv.length) {
+    case 0: return imp(recv, id);
+    case 1: return imp(recv, id, argv[0]);
+    case 2: return imp(recv, id, argv[0], argv[1]);
+    case 3: return imp(recv, id, argv[0], argv[1], argv[2]);
+    case 4: return imp(recv, id, argv[0], argv[1], argv[2], argv[3]);
+    case 5: return imp(recv, id, argv[0], argv[1], argv[2], argv[3], argv[4]);
+    default: throw "currently too many args: " + argv.length + " for " + id
+  }
+};
+
+/**
+  yield a block
+  
+  argv in array
+*/
+cr_y = function cr_yield(block, argv) {
+  if (block == nil) throw "no block given..."
+  console.log("Doing block!!");
 };

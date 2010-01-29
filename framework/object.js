@@ -28,6 +28,7 @@ rb_cObject = nil;
 rb_cBasicObject = nil;
 rb_cModule = nil;
 rb_cClass = nil;
+rb_mKernel = nil;
 
 function rb_basic_obj_alloc(cls, sel) {
   return class_createInstance(cls);
@@ -39,6 +40,12 @@ function rb_module_s_alloc(mod, sel) {
 
 function rb_class_s_alloc(cls, sel) {
   return rb_class_boot();
+};
+
+function rb_f_puts(cls, sel, val) {
+  console.log(val);
+  // CPLog(val);
+  return nil;
 };
 
 function Init_Object() {
@@ -58,4 +65,17 @@ function Init_Object() {
   
   rb_include_module(rb_cObject.isa, rb_cClass);
   rb_include_module(rb_cObject.isa, rb_cModule);
+  
+  
+  
+  
+  rb_mKernel = rb_define_module("Kernel");
+  rb_include_module(rb_cObject, rb_mKernel);
+  
+  /**
+    puts is generally called with a single param, so we use a colon-iszed name
+    for quicker lookups (to save having to reaearch without a colon)
+  */
+  rb_define_method(rb_mKernel, "puts:", rb_f_puts, 1);
+  rb_define_method(rb_cModule, "puts:", rb_f_puts, 1);
 };

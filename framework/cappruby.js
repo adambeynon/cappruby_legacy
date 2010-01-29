@@ -28,7 +28,7 @@
   Global block. Used for passing blocks around functions. We need this as we
   are not using a stack based runtime. :(
 */
-cappruby_global_block = nil;
+cappruby_block = nil;
 
 /**
   Main CappRuby entry point. 
@@ -57,51 +57,10 @@ function cappruby_file(file, content) {
 };
 
 /**
-  cappruby method. Similar to objj_method, but takes extra "ruby specific" bits
-  and pieces.
-*/
-function cappruby_method_t(name, imp, types) {
-  this.name = name;
-  this.method_imp = imp;
-  this.types = types;
-  
-  // this is set to true if the method is a cappruby method
-  this.capprubymethod = true;
-  // arity
-  this.arity = 0;
-};
-
-/**
   call all cappruby inits
 */
 function cappruby_init() {
   Init_Object();
+  Init_Array();
   Init_VM();
-};
-
-/**
-  To start every funcall, set global cappruby_block var to a block, if we get
-  sent one. Every ruby based function will then get that as a local var, set it
-  and then set the global var to nil. each method will then have nil for the
-  block, or an actual block it can use. This stops other methods carrying on the
-  block and treating it as their own. Also, makes objj calls into functions not
-  break our block system. If no global block, then it wont be set. Also, we 
-  should only do this process when rb_funcalling to a function that is a ruby
-  based. To achieve this we can set a flag on a function (named to avoid objj)
-  local names to identify it as a cappruby function. If we try this process with
-  a objj method, then it wont clear the global block, so it could be incorrecly
-  sent onto a method which shouldnt take it.
-  
-  this is only done for block. We still use objj_msgSend, just with blocks we
-  add a small layer for "compatibility".
-*/
-function rb_funcall_block(block, recv, id) {
-  var method = recv.isa.method_dtable[id];
-  // fixme
-  if (!method) throw "cappruby: cannot find method " + id
-  
-  if (method.capprubymethod) {
-    cappruby_global_block = block;
-    return objj_msgSend.apply(recv, Array.prototype.slice.call(arguments, 1));
-  }
 };

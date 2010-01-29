@@ -1,6 +1,6 @@
 /* 
- * objj_additions.js
- * opal
+ * enumerator.js
+ * cappruby
  * 
  * Created by Adam Beynon.
  * Copyright 2010 Adam Beynon.
@@ -24,61 +24,16 @@
  * THE SOFTWARE.
  */
 
-/**
-  Stuff in here are things that are generally useful, and could be implemented
-  as part of vanilla objj.
-*/ 
+rb_cEnumerator = nil;
 
-/**
-  Types: useful for identifying types of objects: extends CLS, OBJ types.
-*/
-T_CLASS   = 0;
-T_MODULE  = 1;
-T_OBJECT  = 2;
-T_ICLASS  = 3;
-T_STRING  = 4;
-T_ARRAY   = 5;
-T_NUMBER  = 6;
-T_PROC    = 7;
-T_SYMBOL  = 8;
-T_HASH    = 9;
-T_BOOLEAN = 10;
-
-//  type support
-Number.prototype.objj_flags = T_NUMBER;
-Array.prototype.objj_flags = T_ARRAY;
-Boolean.prototype.objj_flags = T_BOOLEAN;
-Function.prototype.objj_flags = T_PROC;
-
-/**
-  CLS_SINGLETON
-  
-  Identifiy objects as singletons (or more specifically, classes)
-  
-  This is also a "nicer" way for handling KVO replacing classes.. makes the idea
-  more generic.
-*/
-CLS_SINGLETON = 0x16;
-
-/**
-  Duplicate class - for now a hack, need to actually do this.
-*/
-function objj_duplicateClass(klass, name) {
-  var c = objj_allocateClassPair(klass, name);
-  
-  objj_registerClassPair(c);
-  _class_initialize(c);
-  return c;
+function rb_enumerator_alloc(cls, sel) {
+  return CPEnumerator;
 };
 
-/**
-  Proc/Block/Func
-*/
-@implementation CPBlock : CPObject
-{
+function Init_Enumerator() {
+  // Is this silly?
+  rb_cEnumerator = objj_getClass("CPEnumerator");
+  // rb_include_module(rb_cEnumerator, rb_mEnumerable);
   
-}
-
-@end
-
-Function.prototype.isa = CPBlock;
+  rb_define_singleton_method(rb_cEnumerator, "alloc", rb_enumerator_alloc, 0);
+};

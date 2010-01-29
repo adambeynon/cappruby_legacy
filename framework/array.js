@@ -1,6 +1,6 @@
 /* 
- * objj_additions.js
- * opal
+ * array.js
+ * cappruby
  * 
  * Created by Adam Beynon.
  * Copyright 2010 Adam Beynon.
@@ -24,61 +24,23 @@
  * THE SOFTWARE.
  */
 
-/**
-  Stuff in here are things that are generally useful, and could be implemented
-  as part of vanilla objj.
-*/ 
+rb_cArray = nil;
 
-/**
-  Types: useful for identifying types of objects: extends CLS, OBJ types.
-*/
-T_CLASS   = 0;
-T_MODULE  = 1;
-T_OBJECT  = 2;
-T_ICLASS  = 3;
-T_STRING  = 4;
-T_ARRAY   = 5;
-T_NUMBER  = 6;
-T_PROC    = 7;
-T_SYMBOL  = 8;
-T_HASH    = 9;
-T_BOOLEAN = 10;
+function rb_ary_each(ary, sel) {
+  var _b = cappruby_block; cappruby_block = nil;
+  if (!_b) throw "no block passed to ary#each. need to return enumerator"
 
-//  type support
-Number.prototype.objj_flags = T_NUMBER;
-Array.prototype.objj_flags = T_ARRAY;
-Boolean.prototype.objj_flags = T_BOOLEAN;
-Function.prototype.objj_flags = T_PROC;
-
-/**
-  CLS_SINGLETON
-  
-  Identifiy objects as singletons (or more specifically, classes)
-  
-  This is also a "nicer" way for handling KVO replacing classes.. makes the idea
-  more generic.
-*/
-CLS_SINGLETON = 0x16;
-
-/**
-  Duplicate class - for now a hack, need to actually do this.
-*/
-function objj_duplicateClass(klass, name) {
-  var c = objj_allocateClassPair(klass, name);
-  
-  objj_registerClassPair(c);
-  _class_initialize(c);
-  return c;
+  for (var i = 0; i < ary.length; i++) {
+    cr_yield(_b, [ary[i]]);
+  }
 };
 
-/**
-  Proc/Block/Func
-*/
-@implementation CPBlock : CPObject
-{
+function Init_Array() {
+  rb_cArray = objj_getClass("CPArray");
+  // rb_include_module(rb_cArray, rb_mEnumerable);
   
-}
-
-@end
-
-Function.prototype.isa = CPBlock;
+  // rb_define_singleton_method(rb_cArray, "[]", rb_ary_s_create, -1);
+  // rb_define_singleton_method(rb_cArray, "try_convert", rb_ary_s_create, 1);
+  
+  rb_define_method(rb_cArray, "each", rb_ary_each, 0);
+};

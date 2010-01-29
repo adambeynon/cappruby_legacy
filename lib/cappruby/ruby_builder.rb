@@ -84,8 +84,11 @@ module CappRuby
         when RubyBuilder::ISEQ_TYPE_CLASS
           # _a is self (the class just created/modified)
           r << "function(_a"
+        when RubyBuilder::ISEQ_TYPE_BLOCK
+          # no self, just args etc..
+          r << "function("
         else
-          r << type.to_s
+          abort "erm, unknwon iseq type"
         end
         
         r << "){#{@code.join("")}}"
@@ -229,7 +232,16 @@ module CappRuby
       write ","
       
       # block
-      write "nil"
+      if call[:brace_block]
+        current_iseq = @iseq_current
+        block_iseq = iseq_stack_push(ISEQ_TYPE_BLOCK)
+        block_iseq.parent_iseq = current_iseq
+        iseq_stack_pop
+        
+        write block_iseq.to_s
+      else
+        write "nil"
+      end
       write ","
       
       # op flag
@@ -267,6 +279,28 @@ module CappRuby
     
     def generate_string str, context
       write %{"#{str[:value][0][:value]}"}
+    end
+    
+    def generate_numeric num, context
+      write num[:value]
+    end
+    
+    def generate_array ary, context
+      write "["
+      if ary[:args]
+        ary[:args].each do |a|
+          write "," unless ary[:args].first == a
+          generate_stmt a, :full_stmt => false, :last_stmt => false
+        end
+      end
+      
+      write "]"
+    end
+    
+    def generate_xstring stmt, context
+      write "return " if context[:last_stmt] and context[:full_stmt]
+      write stmt[:value][0][:value]
+      write ";" if context[:full_stmt]
     end
   end
 end
