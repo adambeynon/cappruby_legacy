@@ -34,6 +34,12 @@
 */
 
 /**
+  Global block. Used for passing blocks around functions. We need this as we
+  are not using a stack based runtime. :(
+*/
+cappruby_block = nil;
+
+/**
   top self context in ruby. All files will be executed with this top self value
   as "self".
 */
@@ -88,9 +94,21 @@ cr_b = function cr_definemethod(base, id, body, is_singleton) {
   op_flag can be used to detect private calls etc
 */
 cr_b = function cr_send(recv, id, argv, blockiseq, op_flag) {
-  var imp;
+  var imp, klass;
   
-  imp = rb_search_method(recv.isa, id);
+  // make sure we have a reciever and a class. JSON objects, Rects etc will not
+  // have a ".isa" property. In which case, find one for it.
+  if (recv === nil || recv === undefined) {
+    klass = rb_cNilClass;
+  }
+  else if (!recv.isa) {
+    klass = rb_find_class_for_obj(recv);
+  }
+  else {
+    klass = recv.isa;
+  }
+  
+  imp = rb_search_method(klass, id);
   // if we could not find it, try it with/without a colon on the end
   if (!imp) {
     if (id[id.length -1] == ":") {
@@ -130,11 +148,29 @@ cr_c = function cr_getconstant(base, id) {
 };
 
 /**
+  functioncall
+*/
+cr_d = function cr_functioncall(id, argv) {
+  throw "doing " + id
+};
+
+/**
+  newhash
+*/
+cr_e = function cr_newhash() {
+  return rb_hash_new.apply(rb_hash_new, arguments);
+};
+
+/**
   yield a block
   
   argv in array
+  
+  need to wrap in a try block. return/break etc from block/yield is different
+  from a proc. if we are a proc, then we need to catch breaks/returns... this
+  might/should be done in proc#call ?
 */
 cr_y = function cr_yield(block, argv) {
   if (block == nil) throw "no block given..."
-  console.log("Doing block!!");
+  return block.apply(block, argv);
 };

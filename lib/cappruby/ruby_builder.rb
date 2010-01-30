@@ -39,6 +39,12 @@ module CappRuby
         @type = type
         # names => minimixed names (i.e. letters)
         @local_names = { }
+        # same, for args
+        @arg_names = { }
+        # has a value, other than nil, of the str used to set the block param
+        # e.g. def method(&adam)' end ... this will be "adam", incase we 
+        # reference it. The block always points to _$, whether we name it or not
+        @block_name = nil
         # current to use for minimized. 'a' is always self, so we start there
         # and increment one time for every new local in context.
         @local_current = 'a'
@@ -52,20 +58,87 @@ module CappRuby
         @code = []
       end
       
+      def type
+        @type
+      end
+      
+      def local_current
+        @local_current
+      end
+      
+      def local_current=(s)
+        @local_current = s
+      end
+      
       def write(str)
         @code << str
       end
       
+      # When we set this, if we are a blcok, then we need to set our 
+      # @local current to that of the parent, and then, when we finish, set the
+      # parents to be what ours finishes at. This avoids clashing local var 
+      # names.
+      # 
+      # Doing it this way avoids us including these vars, declared in the block
+      # as vars in the method. they are vas just for the block.
       def parent_iseq=(other)
         @parent_iseq = other
+        
+        if @type == RubyBuilder::ISEQ_TYPE_BLOCK
+          @local_current = other.local_current
+        end
+      end
+      
+      # finalizes, as described above
+      def finalize
+        if @type == RubyBuilder::ISEQ_TYPE_BLOCK
+          @parent_iseq.local_current =  @local_current
+        end
       end
       
       # looks u; the local name "str". This checks method arguments as well as
       # local variables defined. If we have the local, then the string version
       # of the minimized name is returned (e.g. _a, _b..... etc), or if we do
       # not have it, then nil is returned.
+      # 
+      # Also of note, this also checks if the str is the name of the block that
+      # was declared (if a method). A block &block is not an arg or a local, but
+      # can be referecenced if declared as a method "argument". These are stored
+      # as the local var _$, if present.
       def lookup_local(str)
-        
+        if @local_names.has_key? str
+          @local_names[str]
+        elsif @arg_names.has_key? str
+          @arg_names[str]
+        elsif @block_name
+          "_$"
+        else
+          if @type == RubyBuilder::ISEQ_TYPE_BLOCK
+            return @parent_iseq.lookup_local(str)
+          end
+          # if we are a block, check parent...
+          nil
+        end
+      end
+      
+      # push arg name, and returns the "minimized version"
+      def push_arg_name(str)
+        @local_current = @local_current.next
+        @arg_names[str] = "_#{@local_current}"
+        "_#{@local_current}"
+      end
+      
+      # push local name, and returns the "minimized version"
+      def push_local_name(str)
+        @local_current = @local_current.next
+        @local_names[str] = "_#{@local_current}"
+        "_#{@local_current}"
+      end
+      
+      # set the block name, if present
+      def push_block_name(str)
+        @block_name = str
+        "_$"
       end
       
       def to_s
@@ -81,17 +154,25 @@ module CappRuby
         when RubyBuilder::ISEQ_TYPE_METHOD
           # _a is self, _b is the selector
           r << "function(_a,_b"
+          @arg_names.each_value { |v| r << ",#{v}" }
         when RubyBuilder::ISEQ_TYPE_CLASS
           # _a is self (the class just created/modified)
           r << "function(_a"
         when RubyBuilder::ISEQ_TYPE_BLOCK
           # no self, just args etc..
           r << "function("
+          r << @arg_names.each_value.to_a.join(",")
         else
           abort "erm, unknwon iseq type"
         end
         
-        r << "){#{@code.join("")}}"
+        r << "){"
+        # locals
+        if @local_names.length > 0
+          r << "var #{@local_names.each_value.to_a.join(", ")};"
+        end
+        
+        r << "#{@code.join("")}}"
         
         r
       end
@@ -108,6 +189,8 @@ module CappRuby
       iseq = @iseq_stack.last
       @iseq_stack.pop
       @iseq_current = @iseq_stack.last
+      # finalize (var locals etc)
+      iseq.finalize
       iseq.to_s
     end
     
@@ -154,6 +237,9 @@ module CappRuby
       def_iseq.parent_iseq = current_iseq
       
       # arg names
+      if stmt[:arglist].arg
+        stmt[:arglist].arg.each { |a| @iseq_current.push_arg_name a[:value] }
+      end
       
       # body stmts
       stmt[:bodystmt].each do |b|
@@ -200,6 +286,12 @@ module CappRuby
     end
     
     def generate_call call, context
+      # capture "function calls"
+      if call[:meth].match /^[A-Z](.*)$/
+        return generate_function_call call, context
+      end
+      # capture objj
+      
       write "return " if context[:last_stmt] and context[:full_stmt]
       
       write %{cr_send(}
@@ -228,6 +320,20 @@ module CappRuby
           generate_stmt arg, :full_stmt => false
         end
       end
+      
+      # assocs
+      if call[:call_args] and call[:call_args][:assocs]
+        write "," unless call[:call_args].nil? or call[:call_args][:args].nil?
+        write "cr_newhash("
+        call[:call_args][:assocs].each do |assoc|
+          write "," unless call[:call_args][:assocs].first == assoc
+          generate_stmt assoc[:key], :full_stmt => false, :last_stmt => false
+          write ","
+          generate_stmt assoc[:value], :full_stmt => false, :last_stmt => false
+        end
+        write ")"
+      end
+      
       write "]"
       write ","
       
@@ -236,6 +342,21 @@ module CappRuby
         current_iseq = @iseq_current
         block_iseq = iseq_stack_push(ISEQ_TYPE_BLOCK)
         block_iseq.parent_iseq = current_iseq
+        
+        # block arg names
+        if call[:brace_block][:params]
+          call[:brace_block][:params].each do |p|
+            block_iseq.push_arg_name p[:value]
+          end
+        end
+        
+        # block stmts
+        if call[:brace_block][:stmt]
+          call[:brace_block][:stmt].each do |a|
+            generate_stmt a, :full_stmt => true, :last_stmt => call[:brace_block][:stmt].last == a
+          end
+        end
+        
         iseq_stack_pop
         
         write block_iseq.to_s
@@ -250,8 +371,45 @@ module CappRuby
       write ";" if context[:full_stmt]
     end
     
+    def generate_function_call call, context
+      write "return " if context[:last_stmt] and context[:full_stmt]
+      
+      write "cr_functioncall(\""
+      write call[:meth]
+      write "\",["
+      
+      unless call[:call_args].nil? or call[:call_args][:args].nil?
+        call[:call_args][:args].each do |arg|
+          write "," unless call[:call_args][:args].first == arg
+          generate_stmt arg, :full_stmt => false
+        end
+      end
+      
+      write "])"
+      
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_identifier id, context
+      write "return " if context[:last_stmt] and context[:full_stmt]
+      
+      local = @iseq_current.lookup_local id[:name]
+      if local
+        write local
+      else
+        # cannot find local, so we assume it is a function call...
+        write %{cr_send(_a,"#{id[:name]}",[],nil,8)}
+      end
+      
+      write ";" if context[:full_stmt]
+    end
+    
     # similar to def, but for calls (not objj style calls..)
     def gen_call_should_use_colon?(c)
+      # basically, if a "special" method using ruby only things, then dont use
+      # a colon
+      return false if c[:meth].match /(\<|\!|\?\>\=\!)/
+      
       args_len = 0
       if c[:call_args] and c[:call_args][:args]
         args_len = args_len + c[:call_args][:args].length
@@ -308,6 +466,28 @@ module CappRuby
     def generate_xstring stmt, context
       write "return " if context[:last_stmt] and context[:full_stmt]
       write stmt[:value][0][:value]
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_assign stmt, context
+      write "return " if context[:last_stmt] and context[:full_stmt]
+      
+      # LHS is an identifier (local)
+      if stmt[:lhs].node == :identifier
+        # check to see if it already exists, i.e. reusing old name
+        local = @iseq_current.lookup_local stmt[:lhs][:name]
+        unless local
+          # cannot find local, so we must make it
+          local = @iseq_current.push_local_name stmt[:lhs][:name]
+        end
+        
+        write "#{local} = "
+        # RHS
+        generate_stmt stmt[:rhs], :full_stmt => false, :last_stmt => false
+      else
+        abort "unknown assign type: #{stmt[:lhs].node}"
+      end
+      
       write ";" if context[:full_stmt]
     end
   end

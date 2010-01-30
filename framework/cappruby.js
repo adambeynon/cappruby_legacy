@@ -25,12 +25,6 @@
  */
 
 /**
-  Global block. Used for passing blocks around functions. We need this as we
-  are not using a stack based runtime. :(
-*/
-cappruby_block = nil;
-
-/**
   Main CappRuby entry point. 
   
   main_file - the .rb file to load (and run)
@@ -42,18 +36,7 @@ function cappruby_main(main_file, args, namedArgs) {
   cappruby_file_hash['/lib/application.rb'](cappruby_top_self);
   // cappruby_trial(cappruby_top_self);
   CPApplicationMain(args, namedArgs);
-  console.log("jere");
-};
-
-/**
-  Loaded from the application as "compiled ruby code"
-  
-  - file is the filepath of the "ruby file" : used for require()
-  - content is the compiled ruby, as javascript. It is enclosed in a function()
-    so to run it (on require), simply execute the content e.g. c();
-*/
-function cappruby_file(file, content) {
-  cappruby_file_hash[file] = content;
+  // console.log("jere");
 };
 
 /**
@@ -65,4 +48,5 @@ function cappruby_init() {
   Init_String();
   Init_Proc();
   Init_VM();
+  Init_Mappings();
 };

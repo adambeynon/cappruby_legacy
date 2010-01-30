@@ -29,3 +29,14 @@
   so execute it.
 */
 cappruby_file_hash = { };
+
+/**
+  Loaded from the application as "compiled ruby code"
+  
+  - file is the filepath of the "ruby file" : used for require()
+  - content is the compiled ruby, as javascript. It is enclosed in a function()
+    so to run it (on require), simply execute the content e.g. c();
+*/
+function cappruby_file(file, content) {
+  cappruby_file_hash[file] = content;
+};

@@ -44,6 +44,10 @@ function rb_const_get(klass, id) {
     klass = klass.super_class;
   }
   // try window scope..
-  if (window[id] !== undefined) return window[id];
+  if (window[id] !== undefined) {
+    // if we find it, pop it into the rb_cObject scope
+    rb_const_set(rb_cObject, id, window[id]);
+    return window[id];
+  }
   throw "cannot find constant " + id;
 };

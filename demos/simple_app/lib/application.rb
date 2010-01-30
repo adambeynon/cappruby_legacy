@@ -4,20 +4,26 @@ class AppController
   
   def applicationWillFinishLaunching(notification)
     puts "Woohoo!"
-    # puts CPWindow.alloc.initWithContentRect(CPRect(100,100,100,100), 
-                        # styleMask:CPBorderlessBridgedWindowMask)
+    window :title => "Main Window" do |win|
+      
+    end
   end
   
   def applicationDidFinishLaunching(notification)
     puts "Erm, better actually do some stuff now."
+    win = CPWindow.alloc
     # inline javascript/objective-j
-    `console.log(10)`
+    # `console.log(10)`
+    [1,2,3].each do |a|
+      puts a
+    end
+    
+    bob = 20
+    
   end
   
 end
 
 
 
-[1,2,3].each do |a|
-  puts "wow"
-end
+

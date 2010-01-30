@@ -38,6 +38,29 @@ function cappruby_method_t(name, imp, types) {
   // arity
   this.arity = 0;
 };
+
+/**
+  global functions. Some methods in ruby can be defined as "global functions".
+  These all begin with uppercase lettters, and look like constants. All global
+  functions are stored in this table. As an exception for objj, searching for 
+  global functions will first search this table, and then, search the global
+  namespace. This will allow CoreGraphics, CGRect, CPApplicationMain etc all to
+  become available to ruby. Note, with global functions, no "self" property is 
+  used. This allows functions from objj to be seemesly used.
+*/
+rb_global_functions_table = { };
+
+function rb_global_functions_search(id) {
+  if (rb_global_functions_table[id]) {
+    return rb_global_functions_table[id];
+  }
+  // if found in window/global, ensure it is a function.
+  else if (window[id] && typeof window[id] === 'function') {
+    return window[id];
+  }
+  // not found..
+  return nil;
+};
  
 /**
  Search for the method in klass. Additons to objj search are that it searches
@@ -67,4 +90,31 @@ function rb_search_method(klass, id) {
  }
  // if found straight away..
  return m.method_imp;
+};
+
+/**
+  If we dont have a .isa property, find out the type of class. We can, for 
+  instance, guess its a rect/point/size etc, and add a .isa property to it for
+  the future. If all else fails, we assume it to be a regular JSON object. In
+  this case, we must return the WrapperJSON class. WrapperJSON does not add a
+  .isa property, as this could muck up json properties of the object (e.g. a
+  property that shouldnt really exist), so the class is a Wrapper class that can
+  interact with any nominal object. CPRect, CPPoint and CPSize .isa properties
+  will be added, as they wont affect the nature of these structs.
+*/
+function rb_find_class_for_obj(obj) {
+  if (obj.hasOwnProperty('size') && obj.hasOwnProperty('origin')) {
+    obj.isa = cr_cRect;
+    return cr_cRect;
+  }
+  else if (obj.hasOwnProperty('width') && obj.hasOwnProperty('height')) {
+    obj.isa = cr_cSize;
+    return cr_cSize;
+  }
+  else if (obj.hasOwnProperty('x') && obj.hasOwnProperty('y')) {
+    obj.isa = cr_cPoint;
+    return cr_cPoint;
+  }
+  console.log(obj);
+  throw "trying to find class for obj - must be JSON, so use JSONWrapper"
 };

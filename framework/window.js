@@ -1,5 +1,5 @@
 /* 
- * array.js
+ * window.js
  * cappruby
  * 
  * Created by Adam Beynon.
@@ -23,24 +23,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+ 
+/**
+ window :title => "Adam", :frame => [100, 300] do |win|
+   ...
+ end
 
-rb_cArray = nil;
-
-function rb_ary_each(ary, sel) {
+ Block is optional, and if given, the created window is passed. A set of 
+ default options are used to "setup" the window in a default state.
+*/
+function cr_mappings_window(self, sel, options) {
   var _$ = cappruby_block; cappruby_block = nil;
-  if (!_$) throw "no block passed to ary#each. need to return enumerator"
+  var h = cr_mappings_collate_options('window', options);
 
-  for (var i = 0; i < ary.length; i++) {
-    cr_yield(_$, [ary[i]]);
+  var win = objj_msgSend(objj_msgSend(CPWindow, "alloc"), "initWithContentRect:styleMask:", CGRectMake(100,100,400,300), CPTitledWindowMask);
+
+  objj_msgSend(win, "setTitle:", rb_hash_delete(h, 'delete:', ID2SYM("title")));
+
+  if(_$) { // if block given
+    cr_yield(_$, [win]);
   }
+
+  objj_msgSend(win, "orderFront:", self);
+
+  return win;
 };
 
-function Init_Array() {
-  rb_cArray = objj_getClass("CPArray");
-  // rb_include_module(rb_cArray, rb_mEnumerable);
+/**
+  CPWindow#<<(subview)
+  CPWindow#addSubview(subview)
   
-  // rb_define_singleton_method(rb_cArray, "[]", rb_ary_s_create, -1);
-  // rb_define_singleton_method(rb_cArray, "try_convert", rb_ary_s_create, 1);
-  
-  rb_define_method(rb_cArray, "each", rb_ary_each, 0);
+  Add a subview to the windows' contentView.
+*/
+function cr_window_add_subview(win, sel, view) {
+  var content_view = objj_msgSend(win, "contentView");
+  objj_msgSend(content_view, "addSubview:", view);
+  return view;
+};
+
+function Init_Mappings_Window() {
+  rb_define_method(rb_mKernel, "window:", cr_mappings_window, 1);
+  rb_define_method(CPWindow, "<<", cr_window_add_subview, 1);
+  rb_define_method(CPWindow, "addSubview:", cr_window_add_subview, 1);
 };
