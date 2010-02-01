@@ -28,7 +28,7 @@ require 'yaml'
 require 'fileutils'
 require 'rubygems'
 # require 'vienna'
-require File.join(File.dirname(__FILE__), '..', '..', 'lib', 'vienna.rb')
+require 'vienna'
 
 module CappRuby
   

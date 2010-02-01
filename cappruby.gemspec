@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{cappruby}
-  s.version = "0.0.1"
+  s.version = "0.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Adam Beynon"]
-  s.date = %q{2010-01-30}
+  s.date = %q{2010-02-01}
   s.default_executable = %q{cappruby}
   s.description = %q{cappruby}
   s.email = %q{adam@adambeynon.com}
@@ -23,7 +23,10 @@ Gem::Specification.new do |s|
      "demos/simple_app/config/build.yml",
      "demos/simple_app/lib/application.rb",
      "demos/simple_app/lib/menu.rb",
+     "demos/twitter_client/config/build.yml",
+     "demos/twitter_client/lib/application.rb",
      "framework/array.js",
+     "framework/button.js",
      "framework/cappruby.js",
      "framework/class.js",
      "framework/enumerator.js",
@@ -36,12 +39,16 @@ Gem::Specification.new do |s|
      "framework/object.js",
      "framework/objj_additions.js",
      "framework/proc.js",
+     "framework/slider.js",
      "framework/string.js",
      "framework/variable.js",
      "framework/vm.js",
      "framework/window.js",
+     "gen/app/config/build.yml",
+     "gen/app/lib/application.rb",
      "lib/cappruby.rb",
      "lib/cappruby/app_builder.rb",
+     "lib/cappruby/app_generator.rb",
      "lib/cappruby/framework_builder.rb",
      "lib/cappruby/ruby_builder.rb"
   ]
@@ -56,12 +63,15 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_development_dependency(%q<vienna>, [">= 0"])
+      s.add_runtime_dependency(%q<vienna>, [">= 0.0.5"])
+      s.add_development_dependency(%q<racc>, [">= 1.4.6"])
     else
-      s.add_dependency(%q<vienna>, [">= 0"])
+      s.add_dependency(%q<vienna>, [">= 0.0.5"])
+      s.add_dependency(%q<racc>, [">= 1.4.6"])
     end
   else
-    s.add_dependency(%q<vienna>, [">= 0"])
+    s.add_dependency(%q<vienna>, [">= 0.0.5"])
+    s.add_dependency(%q<racc>, [">= 1.4.6"])
   end
 end
 
