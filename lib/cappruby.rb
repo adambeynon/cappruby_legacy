@@ -44,8 +44,15 @@ module CappRuby
     
     case cmd
     when "gen"
-      gen args
+      if args.length == 0
+        print_usage 
+        exit
+      end
+      
+      require_libs
+      AppGenerator.new(args).gen!
     when "build"
+      
       require_libs
       AppBuilder.new(args).build!
     when "-f"
@@ -59,10 +66,6 @@ module CappRuby
   
   def self.print_usage
     puts "Usage: cappruby gen <app name>"
-  end
-  
-  def self.gen(args)
-    puts "gen.."
   end
   
   def self.require_libs

@@ -24,6 +24,14 @@
  * THE SOFTWARE.
  */
 
+function rb_ivar_set(obj, id, val) {
+  return obj[id] = val;
+};
+
+function rb_ivar_get(obj, id) {
+  return obj[id];
+};
+
 function rb_const_set(klass, id, val) {
   klass[id] = val;
 };

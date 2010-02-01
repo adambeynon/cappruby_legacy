@@ -287,7 +287,7 @@ module CappRuby
     
     def generate_call call, context
       # capture "function calls"
-      if call[:meth].match /^[A-Z](.*)$/
+      if call[:meth].match(/^[A-Z](.*)$/)
         return generate_function_call call, context
       end
       # capture objj
@@ -408,7 +408,7 @@ module CappRuby
     def gen_call_should_use_colon?(c)
       # basically, if a "special" method using ruby only things, then dont use
       # a colon
-      return false if c[:meth].match /(\<|\!|\?\>\=\!)/
+      return false if c[:meth].match(/(\<|\!|\?\>\=\!)/)
       
       args_len = 0
       if c[:call_args] and c[:call_args][:args]
@@ -486,6 +486,23 @@ module CappRuby
         generate_stmt stmt[:rhs], :full_stmt => false, :last_stmt => false
       else
         abort "unknown assign type: #{stmt[:lhs].node}"
+      end
+      
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_op_asgn(stmt, context)
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      
+      if stmt[:lhs].node == :ivar
+        write %{(function(asgn)\{if(asgn!==nil && asgn!==undefined)\{}
+        write %{return asgn;\}else\{}
+        write "rb_ivar_set(_a, '#{stmt[:lhs][:name]}',"
+        generate_stmt stmt[:rhs], :full_stmt => false, :last_stmt => false
+        write ")"
+        write %{\}\})(rb_ivar_get(_a,"#{stmt[:lhs][:name]}"))}
+      else
+        abort "bad op_asgn lhs: #{stmt[:lhs].node}"
       end
       
       write ";" if context[:full_stmt]

@@ -1,29 +1,26 @@
 class AppController
   
-  attr_accessor :adam
-  
   def applicationWillFinishLaunching(notification)
-    puts "Woohoo!"
-    window :title => "Main Window" do |win|
-      
-    end
+    main_window
   end
   
   def applicationDidFinishLaunching(notification)
-    puts "Erm, better actually do some stuff now."
-    win = CPWindow.alloc
-    # inline javascript/objective-j
-    # `console.log(10)`
-    [1,2,3].each do |a|
-      puts a
+
+  end
+  
+  # return or build the main window
+  def main_window
+    @main_window ||= window :title => "Main Window" do |win|
+      # A button example
+      button :title => "First Button" do |btn|
+        btn.on_action { puts "Wow, button was clicked" }
+        win << btn
+      end
+      # A simple slider (doesnt send actions..)
+      slider :min => 0, :max => 1000, :value => 900 do |slider|
+        win << slider
+      end
     end
-    
-    bob = 20
-    
   end
   
 end
-
-
-
-

@@ -10,7 +10,8 @@ begin
     gem.email = "adam@adambeynon.com"
     gem.homepage = "http://github.com/adambeynon/cappruby"
     gem.authors = ["Adam Beynon"]
-    gem.add_development_dependency "vienna", ">= 0"
+    gem.add_dependency "vienna", ">= 0.0.5"
+    gem.add_development_dependency "racc", ">= 1.4.6"
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError

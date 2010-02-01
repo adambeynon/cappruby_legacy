@@ -5,23 +5,45 @@
 
 Gem::Specification.new do |s|
   s.name = %q{cappruby}
-  s.version = "0.0.0"
+  s.version = "0.0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Adam Beynon"]
-  s.date = %q{2010-01-26}
+  s.date = %q{2010-01-30}
   s.default_executable = %q{cappruby}
   s.description = %q{cappruby}
   s.email = %q{adam@adambeynon.com}
   s.executables = ["cappruby"]
   s.files = [
-    "VERSION",
+    "Rakefile",
+     "VERSION",
      "bin/cappruby",
      "build/CappRuby/CappRuby.j",
+     "cappruby.gemspec",
+     "demos/simple_app/config/build.yml",
+     "demos/simple_app/lib/application.rb",
+     "demos/simple_app/lib/menu.rb",
+     "framework/array.js",
+     "framework/cappruby.js",
+     "framework/class.js",
+     "framework/enumerator.js",
+     "framework/file.js",
+     "framework/geometry.js",
+     "framework/hash.js",
+     "framework/mapings.js",
+     "framework/method.js",
+     "framework/module.js",
+     "framework/object.js",
+     "framework/objj_additions.js",
+     "framework/proc.js",
+     "framework/string.js",
+     "framework/variable.js",
+     "framework/vm.js",
+     "framework/window.js",
      "lib/cappruby.rb",
-     "runtime/object.js",
-     "runtime/objj_additions.js",
-     "runtime/opal.js"
+     "lib/cappruby/app_builder.rb",
+     "lib/cappruby/framework_builder.rb",
+     "lib/cappruby/ruby_builder.rb"
   ]
   s.homepage = %q{http://github.com/adambeynon/cappruby}
   s.rdoc_options = ["--charset=UTF-8"]

@@ -45,7 +45,7 @@ function cr_mappings_window(self, sel, options) {
   }
 
   objj_msgSend(win, "orderFront:", self);
-
+  
   return win;
 };
 
