@@ -1,5 +1,5 @@
 /* 
- * cappruby.js
+ * string_scanner.js
  * cappruby
  * 
  * Created by Adam Beynon.
@@ -25,32 +25,50 @@
  */
 
 /**
-  Main CappRuby entry point. 
-  
-  main_file - the .rb file to load (and run)
-  args - Passed from main. We send these to CPApplicationMain
-  namedArgs - ditto.
+ String scanner
 */
-function cappruby_main(main_file, args, namedArgs) {
-  cappruby_init();
-  rb_require_file(main_file);
-  // cappruby_file_hash['/lib/application.rb'](cappruby_top_self);
-  // cappruby_trial(cappruby_top_self);
-  CPApplicationMain(args, namedArgs);
-  // console.log("jere");
+var vn_ruby_string_scanner = function(str) {
+ // whole string
+ this.str = str;
+ // current index
+ this.at = 0;
+ // last matched data
+ this.matched = "";
+ // working string (basically str substr'd from the 'at' index to the end)
+ this.working_string = str;
 };
 
-/**
-  call all cappruby inits
-*/
-function cappruby_init() {
-  Init_Object();
-  Init_Dir();
-  Init_File();
-  Init_Array();
-  Init_String();
-  Init_Proc();
-  Init_VM();
-  Init_Load();
-  Init_Mappings();
+vn_ruby_string_scanner.prototype.scan = function(reg) {
+ // reg = this._fix_regexp_to_match_beg(reg);
+ var res = reg.exec(this.working_string);
+ if (res == null) {
+   return false;
+ }
+ else if (typeof res == "object") {
+   // array.
+   this.at += res[0].length;
+   this.working_string = this.working_string.substr(res[0].length);
+   this.matched = res[0];
+   return res;
+ }
+ else if (typeof res == "string") {
+   this.at += res.length;
+   this.working_string = this.working_string.substr(res.length);
+   return res;
+ }
+ return false;
+};
+
+vn_ruby_string_scanner.prototype.check = function(reg) {
+ // reg = this._fix_regexp_to_match_beg(reg);
+ var res = reg.exec(this.working_string);
+ return res;
+};
+
+vn_ruby_string_scanner.prototype.matched = function() {
+
+};
+
+vn_ruby_string_scanner.prototype.peek = function(len) {
+ return this.working_string.substr(0, len);
 };

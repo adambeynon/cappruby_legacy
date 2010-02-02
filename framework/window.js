@@ -25,6 +25,11 @@
  */
  
 /**
+  Symbol vesion of window masks   
+*/
+cr_mappings_window_masks = { };
+ 
+/**
  window :title => "Adam", :frame => [100, 300] do |win|
    ...
  end
@@ -35,8 +40,24 @@
 function cr_mappings_window(self, sel, options) {
   var _$ = cappruby_block; cappruby_block = nil;
   var h = cr_mappings_collate_options('window', options);
-
-  var win = objj_msgSend(objj_msgSend(CPWindow, "alloc"), "initWithContentRect:styleMask:", objj_msgSend(rb_hash_delete(h, 'delete:', ID2SYM("frame")), 'to_rect'), rb_hash_delete(h, 'delete:', ID2SYM("style")));
+  
+  var style_options = rb_hash_delete(h, 'delete:', ID2SYM("style"));
+  if (style_options.isa == CPArray) {
+    var style = cr_mappings_window_masks[style_options[0]];
+    for (var i = 1; i < style_options.length; i++) {
+      // console.log(cr_mappings_window_masks[style_options[i]);
+      style = style | cr_mappings_window_masks[style_options[i]];
+    }
+    console.log(style);
+  }
+  else if (style_options.isa == rb_cSymbol) {
+    var style = cr_mappings_window_masks[style_options];
+  }
+  else {
+    throw "CPWindow: unknown style type. Use array or symbol. " + style_options
+  }
+  
+  var win = objj_msgSend(objj_msgSend(CPWindow, "alloc"), "initWithContentRect:styleMask:", objj_msgSend(rb_hash_delete(h, 'delete:', ID2SYM("frame")), 'to_rect'), style);
 
   objj_msgSend(win, "setTitle:", rb_hash_delete(h, 'delete:', ID2SYM("title")));
 
@@ -62,6 +83,14 @@ function cr_window_add_subview(win, sel, view) {
 };
 
 function Init_Mappings_Window() {
+  cr_mappings_window_masks[ID2SYM('borderless')] = CPBorderlessWindowMask;
+  cr_mappings_window_masks[ID2SYM('titled')] = CPTitledWindowMask;
+  cr_mappings_window_masks[ID2SYM('closable')] = CPClosableWindowMask;
+  cr_mappings_window_masks[ID2SYM('miniaturizable')] = CPMiniaturizableWindowMask;
+  cr_mappings_window_masks[ID2SYM('resizable')] = CPResizableWindowMask;
+  cr_mappings_window_masks[ID2SYM('textured')] = CPTexturedBackgroundWindowMask;
+  cr_mappings_window_masks[ID2SYM('bridge')] = CPBorderlessBridgeWindowMask;
+  cr_mappings_window_masks[ID2SYM('hud')] = CPHUDBackgroundWindowMask;
   rb_define_method(rb_mKernel, "window:", cr_mappings_window, 1);
   rb_define_method(CPWindow, "<<", cr_window_add_subview, 1);
   rb_define_method(CPWindow, "addSubview:", cr_window_add_subview, 1);

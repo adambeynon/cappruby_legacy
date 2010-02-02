@@ -62,6 +62,6 @@ function Init_Mappings_Menu() {
   rb_define_method(rb_mKernel, "menu", cr_mappings_menu, 0);
   
   rb_define_method(CPMenu, 'submenu:', cr_menu_submenu, 1);
-  rb_define_method(CPMenu, 'item', cr_menu_item, 1);
+  rb_define_method(CPMenu, 'item:', cr_menu_item, 1);
   rb_define_method(CPMenu, 'separator', cr_menu_separator, 0);
 };

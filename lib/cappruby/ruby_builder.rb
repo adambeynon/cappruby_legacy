@@ -34,6 +34,8 @@ module CappRuby
     
     class CappIseq
       
+      attr_reader :arg_names
+      
       def initialize(type)
         # iseq type
         @type = type
@@ -230,7 +232,17 @@ module CappRuby
       
       write "return " if context[:last_stmt] and context[:full_stmt]
       
+      # catch using a param  with init
+      if stmt[:fname] == "init"
+        if gen_def_should_use_colon?(stmt[:arglist])
+          abort "init cannot take params: use initialize instead."
+        end
+      end
+      
       is_singleton = stmt[:singleton] ? 1 : 0
+      
+      # should the method auto return?
+      should_return = stmt[:fname] != "initialize"
       
       current_iseq = @iseq_current
       def_iseq = iseq_stack_push(ISEQ_TYPE_METHOD)
@@ -242,8 +254,16 @@ module CappRuby
       end
       
       # body stmts
-      stmt[:bodystmt].each do |b|
-        generate_stmt b, :full_stmt => true, :last_stmt => b == stmt[:bodystmt].last
+      if should_return
+        stmt[:bodystmt].each do |b|
+          generate_stmt b, :full_stmt => true, :last_stmt => b == stmt[:bodystmt].last
+        end
+      else
+        stmt[:bodystmt].each do |b|
+          generate_stmt b, :full_stmt => true, :last_stmt => false
+        end
+        # we need to autoreturn "self"
+        write "return _a;"
       end
       
       iseq_stack_pop
@@ -263,9 +283,15 @@ module CappRuby
       # selector name (i.e. it takes either exactly 1 param, or it takes a 
       # single default param.. this might be the case, we just add a defailt
       # value to the selector:)
-      sel_colon = gen_def_should_use_colon?(stmt[:arglist]) ? ":" : ""
-      
-      write %{,"#{stmt[:fname]}#{sel_colon}",#{def_iseq},#{is_singleton})}
+      # 
+      # Also, always map initialize to "init" .. note, no semicolon EVER.
+      if stmt[:fname] == "initialize"
+        sel_name = "init"
+      else
+        sel_colon = gen_def_should_use_colon?(stmt[:arglist]) ? ":" : ""
+        sel_name = "#{stmt[:fname]}#{sel_colon}"
+      end
+      write %{,"#{sel_name}",#{def_iseq},#{is_singleton})}
       
       write ";" if context[:full_stmt]
     end
@@ -386,7 +412,7 @@ module CappRuby
       write "["
       unless call[:call_args].nil? or call[:call_args][:args].nil?
         call[:call_args][:args].each do |arg|
-          write "," unless call[:call_args][:args].last == arg
+          write "," unless call[:call_args][:args].first == arg
           generate_stmt arg, :full_stmt => false
         end
       end
@@ -490,7 +516,7 @@ module CappRuby
       end
       
       # essentially, true if only one arg..
-      (args_len == 1) ? true : false
+      (args_len > 0) ? true : false
     end
     
     def generate_self stmt, context
@@ -605,6 +631,37 @@ module CappRuby
       end
       
       write ";" if context[:full_stmt]
+    end
+    
+    def generate_super(stmt, context)
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      
+      if stmt[:call_args] and stmt[:call_args][:args]
+        # super 10 or super(10) - custom args
+        write %{cr_invokesuper(_a,_b}
+        stmt[:call_args][:args].each do |arg|
+          write ","
+          generate_stmt arg, :full_stmt => false, :last_stmt => false
+        end
+        write ")"
+      elsif stmt[:call_args]
+        # super() - send NO args to super
+        write %{cr_invokesuper(_a,_b)}
+      else
+        # super ... use args just given by current method
+        write %{cr_invokesuper(_a,_b}
+        @iseq_current.arg_names.each_value do |name|
+          write ","
+          write name
+        end
+        write ")"
+      end
+      
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate__FILE__ stmt, context
+      write %{"#{@build_name}"}
     end
   end
 end

@@ -46,7 +46,8 @@ function cr_mappings_default_init() {
       // frame can be an array, which is automatically converted into a rect
       ID2SYM("frame"), [100, 100, 400, 300],
       // style
-      ID2SYM('style'), CPTitledWindowMask|CPClosableWindowMask|CPMiniaturizableWindowMask|CPResizableWindowMask
+      ID2SYM('style'), [ID2SYM('titled'), ID2SYM('closable'),
+                        ID2SYM('miniaturizable'), ID2SYM('resizable')]
     ),
     
     'button': rb_hash_new(

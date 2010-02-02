@@ -95,7 +95,6 @@ cr_b = function cr_definemethod(base, id, body, is_singleton) {
 */
 cr_b = function cr_send(recv, id, argv, blockiseq, op_flag) {
   var imp, klass;
-  
   // make sure we have a reciever and a class. JSON objects, Rects etc will not
   // have a ".isa" property. In which case, find one for it.
   if (recv === nil || recv === undefined) {
@@ -120,7 +119,7 @@ cr_b = function cr_send(recv, id, argv, blockiseq, op_flag) {
   }
   
   if (!imp) {
-    throw "method missing: " + id
+    throw "method missing: " + recv.isa.name + "#" + id + "("+argv.join(",") +")"
   }
   
   // setup block - might be undefined, nil or null..
@@ -159,6 +158,16 @@ cr_d = function cr_functioncall(id, argv) {
 */
 cr_e = function cr_newhash() {
   return rb_hash_new.apply(rb_hash_new, arguments);
+};
+
+/**
+  invokesuper
+*/
+cr_f = function cr_invokesuper(recv, sel) {
+  var super_class = recv.isa.super_class;
+  var args = Array.prototype.slice.call(arguments);
+  args[0] = { receiver: recv, super_class: super_class };
+  return objj_msgSendSuper.apply(recv, args);
 };
 
 /**
