@@ -65,7 +65,9 @@ module CappRuby
   end
   
   def self.print_usage
-    puts "Usage: cappruby gen <app name>"
+    puts "Usage:"
+    puts "  - cappruby gen <app_name>       # Generate an application"
+    puts "  - cappruby build                # Build the app"
   end
   
   def self.require_libs

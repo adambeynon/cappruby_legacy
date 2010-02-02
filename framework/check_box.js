@@ -1,5 +1,5 @@
 /* 
- * window.js
+ * check_box.js
  * cappruby
  * 
  * Created by Adam Beynon.
@@ -24,45 +24,25 @@
  * THE SOFTWARE.
  */
  
-/**
- window :title => "Adam", :frame => [100, 300] do |win|
-   ...
- end
-
- Block is optional, and if given, the created window is passed. A set of 
- default options are used to "setup" the window in a default state.
-*/
-function cr_mappings_window(self, sel, options) {
+function cr_mappings_check_box(chk, sel, options) {
   var _$ = cappruby_block; cappruby_block = nil;
-  var h = cr_mappings_collate_options('window', options);
-
-  var win = objj_msgSend(objj_msgSend(CPWindow, "alloc"), "initWithContentRect:styleMask:", objj_msgSend(rb_hash_delete(h, 'delete:', ID2SYM("frame")), 'to_rect'), rb_hash_delete(h, 'delete:', ID2SYM("style")));
-
-  objj_msgSend(win, "setTitle:", rb_hash_delete(h, 'delete:', ID2SYM("title")));
+  var h = cr_mappings_collate_options('check_box', options);
+  var needs_sizing = dictionary_containsKey(options, ID2SYM('origin'));
+  var frame = cr_mappings_do_control_sizing(chk, options);
+   
+  var btn = objj_msgSend(objj_msgSend(CPCheckBox, "alloc"), "initWithFrame:", frame);
 
   if(_$) { // if block given
-    cr_yield(_$, [win]);
+   cr_yield(_$, [btn]);
   }
 
-  objj_msgSend(win, "orderFront:", self);
+  objj_msgSend(btn, "setTitle:", rb_hash_delete(h, 'delete:', ID2SYM("title")));
   
-  return win;
+  if (needs_sizing) objj_msgSend(btn, 'sizeToFit');
+
+  return btn;
 };
 
-/**
-  CPWindow#<<(subview)
-  CPWindow#addSubview(subview)
-  
-  Add a subview to the windows' contentView.
-*/
-function cr_window_add_subview(win, sel, view) {
-  var content_view = objj_msgSend(win, "contentView");
-  objj_msgSend(content_view, "addSubview:", view);
-  return view;
-};
-
-function Init_Mappings_Window() {
-  rb_define_method(rb_mKernel, "window:", cr_mappings_window, 1);
-  rb_define_method(CPWindow, "<<", cr_window_add_subview, 1);
-  rb_define_method(CPWindow, "addSubview:", cr_window_add_subview, 1);
+function Init_Mappings_CheckBox() {
+  rb_define_method(rb_mKernel, "check_box:", cr_mappings_check_box, 1);
 };

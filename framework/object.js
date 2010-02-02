@@ -75,7 +75,7 @@ function rb_mod_attr_writer(cls, sel) {
 
 function rb_objj_define_kvo_setter(cls, id) {
   id = objj_msgSend(id, "to_s");
-  var k = "set" + id.charAt(0).toUpperCase() + id.substr(1) + ":";
+  var k = ["set", id.charAt(0).toUpperCase(), id.substr(1), ":"].join("");
   rb_define_method(cls, k, function(self, sel, val) {
     var key = id;
     return rb_ivar_set(self, key, val);

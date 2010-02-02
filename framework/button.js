@@ -27,15 +27,24 @@
 function cr_mappings_button(self, sel, options) {
   var _$ = cappruby_block; cappruby_block = nil;
   var h = cr_mappings_collate_options('button', options);
-
-  var btn = objj_msgSend(objj_msgSend(CPButton, "alloc"), "initWithFrame:", CGRectMake(100,100,84,24));
-
+  
+  
+  
+  
+  
+  var size_to_fit = dictionary_containsKey(h, ID2SYM('origin'));
+  var frame = cr_mappings_do_control_sizing(self, options);
+  
+  var btn = objj_msgSend(objj_msgSend(CPButton, "alloc"), "initWithFrame:", frame);
+  
   if(_$) { // if block given
    cr_yield(_$, [btn]);
   }
-
+  
   objj_msgSend(btn, "setTitle:", "My Button");
-
+  
+  if (size_to_fit) objj_msgSend(btn, 'sizeToFit');
+  
   return btn;
 };
 
@@ -48,7 +57,7 @@ function cr_mappings_button(self, sel, options) {
   act as the action, which essentially calls the proc. The proc will have access
   to the scope in which it was defined.
 */
-function cr_window_on_action(btn, sel) {
+function cr_mappings_on_action(btn, sel) {
   var _$ = cappruby_block; cappruby_block = nil;
   if (!_$) {
     throw "no block given for CPButton#on_action"
@@ -68,7 +77,37 @@ function cr_window_on_action(btn, sel) {
   return btn;
 };
 
+/**
+  cr_mappings_do_map
+  
+  Make a mapping from name, to the class.
+  This will call initWithOptions:(options) on the given class. The method will 
+  be added to the Kernel module.
+*/
+function cr_mappings_do_map(name, klass, default_options) {
+  var f = function(cls, sel, options) {
+    var _$ = cappruby_block; cappruby_block = nil;
+    var h = cr_mappings_collate_options(name, options);
+
+    var obj = objj_msgSend(klass, "alloc");
+    objj_msgSend(obj, "initWithOptions:", h);
+
+    if (_$) cr_yield(_$, [obj]);
+    return obj;
+  };
+  
+  rb_define_method(rb_mKernel, name, f, 1);
+  cr_mappings_defaults_store[name] = default_options;
+};
+
 function Init_Mappings_Button() {
-  rb_define_method(rb_mKernel, "button:", cr_mappings_button, 1);
-  rb_define_method(CPButton, "on_action", cr_window_on_action, 0);
+  
+  cr_mappings_do_map("button:", CPButton, rb_hash_new(
+    ID2SYM('frame'), [100, 100, 80, 24],
+    ID2SYM('title'), "Button"
+  ));
+  
+  rb_define_method(CPButton, "on_action", cr_mappings_on_action, 0);
+  
+  
 };

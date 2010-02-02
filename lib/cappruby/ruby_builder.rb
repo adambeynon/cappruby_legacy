@@ -285,7 +285,77 @@ module CappRuby
       end
     end
     
+    def call_is_objj_call?(call)
+      if call[:call_args] and call[:call_args][:assocs]
+        call[:call_args][:assocs].first.node == :label_assoc
+      else
+        false
+      end
+    end
+    
+    def generate_objj_call(call, context)
+      write "return " if context[:last_stmt] and context[:full_stmt]
+      
+      write %{cr_send(}
+      # receiver
+      if call[:recv]
+        call_bit = 0
+        generate_stmt call[:recv], :full_stmt => false, :last_stmt => false
+      else
+        call_bit = 8
+        # self as recv
+        write "_a"
+      end
+      
+      write ","
+      # method id 
+      method_id = "#{call[:meth]}:"
+      call[:call_args][:assocs].each { |a| method_id << a[:key] }
+            
+      write %{"#{method_id}"}
+      
+      write ","
+      
+      # arguments
+      write "["
+      unless call[:call_args].nil? or call[:call_args][:args].nil?
+        call[:call_args][:args].each do |arg|
+          write "," unless call[:call_args][:args].last == arg
+          generate_stmt arg, :full_stmt => false
+        end
+      end
+      
+      call[:call_args][:assocs].each do |a|
+        write ","
+        generate_stmt a[:value], :full_stmt => false, :last_stmt => false
+      end
+            
+      write "]"
+      write ","
+      
+      # block
+      write "nil"
+      write ","
+      
+      # op flag
+      write "#{call_bit})"
+      
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_true stmt, context
+      write "true"
+    end
+    
+    def generate_false stmt, context
+      write "false"
+    end
+    
+    
     def generate_call call, context
+      # capture objj style calls
+      return generate_objj_call(call, context) if call_is_objj_call?(call)
+
       # capture "function calls"
       if call[:meth].match(/^[A-Z](.*)$/)
         return generate_function_call call, context
@@ -484,6 +554,34 @@ module CappRuby
         write "#{local} = "
         # RHS
         generate_stmt stmt[:rhs], :full_stmt => false, :last_stmt => false
+      
+      elsif stmt[:lhs].node == :call
+        
+        write %{cr_send(}
+        # receiver
+        generate_stmt stmt[:lhs][:recv],:full_stmt => false, :last_stmt => false
+
+        write ","
+        # method id 
+        write "\"set#{stmt[:lhs][:meth][0..0].capitalize}#{stmt[:lhs][:meth][1..-1]}:\""
+
+        write ","
+
+        # arguments
+        write "["
+        # puts stmt
+        generate_stmt stmt[:rhs], :full_stmt => false, :last_stmt => false
+        
+        write "]"
+        write ","
+
+        # block
+        write "nil"
+        write ","
+
+        # op flag
+        write "0)"
+      
       else
         abort "unknown assign type: #{stmt[:lhs].node}"
       end
@@ -496,11 +594,12 @@ module CappRuby
       
       if stmt[:lhs].node == :ivar
         write %{(function(asgn)\{if(asgn!==nil && asgn!==undefined)\{}
-        write %{return asgn;\}else\{}
+        write %{return asgn;\}else\{return }
         write "rb_ivar_set(_a, '#{stmt[:lhs][:name]}',"
         generate_stmt stmt[:rhs], :full_stmt => false, :last_stmt => false
-        write ")"
+        write ");"
         write %{\}\})(rb_ivar_get(_a,"#{stmt[:lhs][:name]}"))}
+      
       else
         abort "bad op_asgn lhs: #{stmt[:lhs].node}"
       end

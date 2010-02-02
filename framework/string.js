@@ -61,12 +61,22 @@ function rb_str_to_s(str, sel) {
   return new String(str);
 };
 
+function cr_str_titleize(str, sel) {
+  var parts = str.split("_");
+  for (var i = 0; i < parts.length; i++) {
+    parts[i] = parts[i].charAt(0).toUpperCase() + parts[i].substr(1);
+  }
+  return parts.join(" ");
+};
+
 function Init_String() {
   // string
   rb_cString = objj_getClass("CPString");
   // rb_include_module(rb_cString, rb_mComparable);
   
   rb_define_method(rb_cString, "to_s", rb_str_to_s, 0);
+  
+  rb_define_method(rb_cString, "titleize", cr_str_titleize, 0);
   
   // symbol
   rb_cSymbol = rb_define_class("Symbol", rb_cObject);

@@ -44,10 +44,40 @@ function cr_mappings_default_init() {
       // window title
       ID2SYM("title"), "Window",
       // frame can be an array, which is automatically converted into a rect
-      ID2SYM("frame"), [100, 100, 400, 500]
+      ID2SYM("frame"), [100, 100, 400, 300],
+      // style
+      ID2SYM('style'), CPTitledWindowMask|CPClosableWindowMask|CPMiniaturizableWindowMask|CPResizableWindowMask
+    ),
+    
+    'button': rb_hash_new(
+      ID2SYM('frame'), [100, 100, 80, 24],
+      ID2SYM('title'), "Button"
+    ),
+    
+    'check_box': rb_hash_new(
+      ID2SYM('frame'), [100, 100, 80, 24],
+      ID2SYM('title'), "CheckBox"
     )
   };
 };
+
+/**
+  Do necessary sizing for controls. If we specify an origin, then we dont use 
+  the default frame, but we must size to fit when done. If we just have a frame
+  then use that, but DO NOT size to fit. This returns the frame
+*/
+function cr_mappings_do_control_sizing(control, options) {
+  if (dictionary_containsKey(options, ID2SYM('origin'))) {
+     var origin = objj_msgSend(rb_hash_delete(options, 'delete:', ID2SYM("origin")), 'to_point');
+     rb_hash_delete(options, 'delete:', ID2SYM("frame"));
+     var frame = CPMakeRect(origin.x, origin.y, 0, 0);
+   }
+   else {
+     var frame = objj_msgSend(rb_hash_delete(options, 'delete:', ID2SYM("frame")), 'to_rect');
+   }
+   return frame;
+};
+
 
 /**
   merge default and given options
@@ -81,8 +111,11 @@ function cr_mappings_set_options(obj, hash) {
 function Init_Mappings() {
   // setup defaults.
   cr_mappings_default_init();
+  Init_Mappings_Menu();
   Init_Mappings_Window();
+  Init_Mappings_View();
   Init_Mappings_Button();
+  Init_Mappings_CheckBox();
   Init_Mappings_Slider();
   Init_Mappings_Geometry();
 };
