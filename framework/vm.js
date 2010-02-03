@@ -77,7 +77,8 @@ cr_b = function cr_definemethod(base, id, body, is_singleton) {
   // var m = new cappruby_method_t(id, body, []);
   // arity? hmm, maybe..
   if (is_singleton) {
-    throw "cr_b: singleton method not uet implemented"
+    // throw "cr_b: singleton method not uet implemented"
+    rb_define_singleton_method(base, id, body, -1);
   }
   else {
     // arity?
@@ -95,6 +96,7 @@ cr_b = function cr_definemethod(base, id, body, is_singleton) {
 */
 cr_b = function cr_send(recv, id, argv, blockiseq, op_flag) {
   var imp, klass;
+  // console.log(id);
   // make sure we have a reciever and a class. JSON objects, Rects etc will not
   // have a ".isa" property. In which case, find one for it.
   if (recv === nil || recv === undefined) {
@@ -126,14 +128,24 @@ cr_b = function cr_send(recv, id, argv, blockiseq, op_flag) {
   if (blockiseq != nil) cappruby_block = blockiseq;
   
   // do actual send message
-  switch (argv.length) {
-    case 0: return imp(recv, id);
-    case 1: return imp(recv, id, argv[0]);
-    case 2: return imp(recv, id, argv[0], argv[1]);
-    case 3: return imp(recv, id, argv[0], argv[1], argv[2]);
-    case 4: return imp(recv, id, argv[0], argv[1], argv[2], argv[3]);
-    case 5: return imp(recv, id, argv[0], argv[1], argv[2], argv[3], argv[4]);
-    default: throw "currently too many args: " + argv.length + " for " + id
+  try {
+    switch (argv.length) {
+      case 0: return imp(recv, id);
+      case 1: return imp(recv, id, argv[0]);
+      case 2: return imp(recv, id, argv[0], argv[1]);
+      case 3: return imp(recv, id, argv[0], argv[1], argv[2]);
+      case 4: return imp(recv, id, argv[0], argv[1], argv[2], argv[3]);
+      case 5: return imp(recv, id, argv[0], argv[1], argv[2], argv[3], argv[4]);
+      default: throw "currently too many args: " + argv.length + " for " + id
+    }
+  }
+  catch (e) {
+    if (e.type === "break") {
+      return e.args;
+    }
+    else {
+      throw e
+    }
   }
 };
 
@@ -150,7 +162,11 @@ cr_c = function cr_getconstant(base, id) {
   functioncall
 */
 cr_d = function cr_functioncall(id, argv) {
-  throw "doing " + id
+  var m = rb_global_functions_search(id);
+  if (m === nil) {
+    throw "functioncall: cannot find " + id
+  }
+  return m.apply(this, argv);
 };
 
 /**
@@ -168,6 +184,57 @@ cr_f = function cr_invokesuper(recv, sel) {
   var args = Array.prototype.slice.call(arguments);
   args[0] = { receiver: recv, super_class: super_class };
   return objj_msgSendSuper.apply(recv, args);
+};
+
+/**
+  optplus
+*/
+cr_g = function cr_optplus(a, b) {
+  if (a.isa === CPNumber && b.isa === CPNumber) {
+    return a + b;
+  }
+  return cr_send(a, '+', [b], nil, 0);
+};
+
+/**
+  optminus
+*/
+cr_h = function cr_optminus(a, b) {
+  if (a.isa === CPNumber && b.isa === CPNumber) {
+    return a - b;
+  }
+  return cr_send(a, '-', [b], nil, 0);
+};
+
+/**
+  optmult
+*/
+cr_i = function cr_optmult(a, b) {
+  if (a.isa === CPNumber && b.isa === CPNumber) {
+    return a * b;
+  }
+  return cr_send(a, '*', [b], nil, 0);
+};
+
+/**
+  optdiv
+*/
+cr_j = function cr_optdiv(a, b) {
+  if (a.isa === CPNumber && b.isa === CPNumber) {
+    return a / b;
+  }
+  return cr_send(a, '/', [b], nil, 0);
+};
+
+/**
+  break - all args in arguments
+*/
+vm_h = function vm_break() {
+  throw {
+    type: 'break',
+    args: Array.prototype.slice.call(arguments),
+    toString: function() { return "LocalJumpError: unexpected break" }
+  };
 };
 
 /**

@@ -48,6 +48,10 @@ function rb_f_puts(cls, sel, val) {
   return nil;
 };
 
+function rb_obj_class(cls, sel) {
+  return cls.isa;
+};
+
 function rb_mod_attr_accessor(cls, sel) {
   var i, a = Array.prototype.slice.call(arguments, 2);
   for (i = 0; i < a.length; i++) {
@@ -90,6 +94,10 @@ function rb_objj_define_kvo_getter(cls, id) {
   }, 0);
 };
 
+function rb_mod_const_get(cls, sel, id) {
+  return rb_const_get(cls, id);
+};
+
 function Init_Object() {
   
   rb_cObject = objj_getClass("CPObject");
@@ -108,11 +116,14 @@ function Init_Object() {
   rb_include_module(rb_cObject.isa, rb_cClass);
   rb_include_module(rb_cObject.isa, rb_cModule);
   
-  
+  rb_define_method(rb_cModule, "const_get:", rb_mod_const_get, -1);
+  // rb_define_method(rb_cModule, "const_set", rb_mod_const_set, 2);
   
   
   rb_mKernel = rb_define_module("Kernel");
   rb_include_module(rb_cObject, rb_mKernel);
+  
+  rb_define_method(rb_mKernel, "class", rb_obj_class, 0);
   
   /**
     puts is generally called with a single param, so we use a colon-iszed name

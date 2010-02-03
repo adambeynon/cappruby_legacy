@@ -1,0 +1,4 @@
+class Gauge < CPView
+  
+  
+end

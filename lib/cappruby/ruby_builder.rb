@@ -221,16 +221,37 @@ module CappRuby
       end
       
       iseq_stack_pop
-      
-      write %{cr_defineclass(nil,nil,"#{cls.klass_name}",#{class_iseq},0)}
+      # puts [:expr]
+      write %{cr_defineclass(nil,}
+      # superclass
+      if cls.super_klass
+        generate_stmt cls.super_klass[:expr], :full_stmt => false
+      else
+        write "nil"
+      end
+      write %{,"#{cls.klass_name}",#{class_iseq},0)}
       
       write ";" if context[:full_stmt]
     end
     
+    def def_is_objj_def?(stmt)
+      if stmt[:arglist].arg and stmt[:arglist].arg[1] and stmt[:arglist].arg[1].node == :label_arg
+        return true
+      end
+      false
+    end
+    
+    # def gen_objj_style_def(stmt, context)
+      # p stmt
+    # end
+    
     def generate_def stmt, context
-      #    work out if its an objj style method call..
       
+
       write "return " if context[:last_stmt] and context[:full_stmt]
+      
+      #    work out if its an objj style method call..
+      objj_style = def_is_objj_def?(stmt)
       
       # catch using a param  with init
       if stmt[:fname] == "init"
@@ -288,8 +309,16 @@ module CappRuby
       if stmt[:fname] == "initialize"
         sel_name = "init"
       else
-        sel_colon = gen_def_should_use_colon?(stmt[:arglist]) ? ":" : ""
-        sel_name = "#{stmt[:fname]}#{sel_colon}"
+        if objj_style
+          sel_name = "#{stmt[:fname]}:"
+          stmt[:arglist].arg.each do |arg|
+            next if stmt[:arglist].arg.first == arg
+            sel_name << arg[:name]
+          end
+        else
+          sel_colon = gen_def_should_use_colon?(stmt[:arglist]) ? ":" : ""
+          sel_name = "#{stmt[:fname]}#{sel_colon}"
+        end
       end
       write %{,"#{sel_name}",#{def_iseq},#{is_singleton})}
       
@@ -370,11 +399,16 @@ module CappRuby
     end
     
     def generate_true stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+     
       write "true"
+       write ";" if context[:full_stmt]
     end
     
     def generate_false stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
       write "false"
+      write ";" if context[:full_stmt]
     end
     
     
@@ -504,7 +538,7 @@ module CappRuby
     def gen_call_should_use_colon?(c)
       # basically, if a "special" method using ruby only things, then dont use
       # a colon
-      return false if c[:meth].match(/(\<|\!|\?\>\=\!)/)
+      return false if c[:meth].match(/(\<|\!|\?|\>|\=|\!|\[|\])/)
       
       args_len = 0
       if c[:call_args] and c[:call_args][:args]
@@ -520,7 +554,9 @@ module CappRuby
     end
     
     def generate_self stmt, context
+      write "return " if context[:last_stmt] and context[:full_stmt]
       write "_a"
+      write ";" if context[:full_stmt]
     end
     
     # Generate a yield stmt. This makes sure the current iseq is a method, as
@@ -532,19 +568,27 @@ module CappRuby
     end
     
     def generate_string str, context
+      write "return " if context[:last_stmt] and context[:full_stmt]
       write %{"#{str[:value][0][:value]}"}
+      write ";" if context[:full_stmt]
     end
     
     def generate_symbol sym, context
+      write "return " if context[:last_stmt] and context[:full_stmt]
       write %{ID2SYM("#{sym[:name]}")}
+      write ";" if context[:full_stmt]
     end
     
     def generate_constant cnst, context
+      write "return " if context[:last_stmt] and context[:full_stmt]
       write %{cr_getconstant(_a,"#{cnst[:name]}")}
+      write ";" if context[:full_stmt]
     end
     
     def generate_numeric num, context
+      write "return " if context[:last_stmt] and context[:full_stmt]
       write num[:value]
+      write ";" if context[:full_stmt]
     end
     
     def generate_array ary, context
@@ -661,7 +705,141 @@ module CappRuby
     end
     
     def generate__FILE__ stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
       write %{"#{@build_name}"}
+      write ";" if context[:full_stmt]
     end
+    
+    def generate_opt_plus stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write %{cr_optplus(}
+      generate_stmt stmt[:recv], :last_stmt => false, :full_stmt => false
+      write ","
+      generate_stmt stmt[:call_args][:args][0], :full_stmt => false
+      write ")"
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_opt_minus stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write %{cr_optminus(}
+      generate_stmt stmt[:recv], :last_stmt => false, :full_stmt => false
+      write ","
+      generate_stmt stmt[:call_args][:args][0], :full_stmt => false
+      write ")"
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_opt_mult stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write %{cr_optmult(}
+      generate_stmt stmt[:recv], :last_stmt => false, :full_stmt => false
+      write ","
+      generate_stmt stmt[:call_args][:args][0], :full_stmt => false
+      write ")"
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_opt_div stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write %{cr_optdiv(}
+      generate_stmt stmt[:recv], :last_stmt => false, :full_stmt => false
+      write ","
+      generate_stmt stmt[:call_args][:args][0], :full_stmt => false
+      write ")"
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_if stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write "(function(){"
+      
+      # if/unless clause
+      if stmt.node == :if
+        write "if(RTEST("
+      else # must be unless
+        write "if(!RTEST("
+      end
+      
+      generate_stmt stmt[:expr], :full_stmt => false, :last_stmt => false
+      write ")){"
+      stmt[:stmt].each do |s|
+        # alays return last stmt. we output inside a function context to capture
+        # the return value so that this will not return from the function itself
+        generate_stmt s, :full_stmt => true, :last_stmt => stmt[:stmt].last == s
+      end
+      write "}"
+      
+      # now onto the tail (elsif, else etc)
+      if stmt[:tail]
+        stmt[:tail].each do |t|
+          if t.node == :elsif
+            write "else if(RTEST("
+            generate_stmt t[:expr], :full_stmt => false, :last_stmt => false
+            write ")){"
+            t[:stmt].each do |s|
+              generate_stmt s, :full_stmt => true, :last_stmt => t[:stmt].last==s
+            end
+            write "}"
+          else # else node
+            write "else{"
+            t[:stmt].each do |s|
+              generate_stmt s, :full_stmt => true, :last_stmt => t[:stmt].last==s
+            end
+            write "}"
+          end
+        end
+      end
+      
+      write"})()"
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_orop stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      # we must wrap lhs and rhs in functions. we do not want to evaluate them
+      # until we need to... javascript truthyness !== ruby truthyness
+      write "ORTEST(function(){"
+      generate_stmt stmt[:lhs], :full_stmt => true, :last_stmt => true
+      write "},function(){"
+      generate_stmt stmt[:rhs], :full_stmt => true, :last_stmt => true
+      write "}"
+      
+      write ")"
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_andop stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write "ANDTEST(function(){"
+      generate_stmt stmt[:lhs], :full_stmt => true, :last_stmt => true
+      write "},function(){"
+      generate_stmt stmt[:rhs], :full_stmt => true, :last_stmt => true
+      write "}"
+      
+      write ")"
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_not stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_tertiary stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write ";" if context[:full_stmt]
+    end
+    
+    # break stmt. we MUST be in a loop, so throw error to escape into calling
+    # context. if not in ISEQ_TYPE_BLOCK, then throw error (syntax error), or,
+    # we could infact just let it propgate up through and let Javascript just
+    # push out our error. break can be called with args.
+    def generate_break stmt, context
+      write "vm_break("
+      
+      write ");"
+    end
+    
   end
 end

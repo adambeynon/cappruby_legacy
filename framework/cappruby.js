@@ -41,6 +41,35 @@ function cappruby_main(main_file, args, namedArgs) {
 };
 
 /**
+  RTEST: given the val 'val', return the truthyness in ruby terms:
+  
+  only nil, undefined and false are false. 0, "" are both true
+*/
+function RTEST(val) {
+  if (val === nil || val === undefined || val === false) return false;
+  return true;
+};
+
+/**
+  ORTEST: both lhs and rhs are functions. eval lhs, if ruby false, then return
+  result of evaling rhs
+*/
+function ORTEST(lhs, rhs) {
+  var res = lhs();
+  if (RTEST(res)) return res;
+  return rhs();
+};
+
+/**
+  ANDTEST
+*/
+function ANDTEST(lhs, rhs) {
+  var res = lhs();
+  if (RTEST(res)) return rhs();
+  return res;
+};
+
+/**
   call all cappruby inits
 */
 function cappruby_init() {
@@ -49,6 +78,7 @@ function cappruby_init() {
   Init_File();
   Init_Array();
   Init_String();
+  Init_Numeric();
   Init_Proc();
   Init_VM();
   Init_Load();

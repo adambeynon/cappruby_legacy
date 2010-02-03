@@ -56,6 +56,8 @@ module CappRuby
       write_index_html_file
     
       File.symlink(File.join(@app_root, 'Frameworks'), File.join(build_dir, 'Frameworks')) unless File.exist? File.join(build_dir, 'Frameworks')
+      
+      File.symlink(File.join(@app_root, 'Resources'), File.join(build_dir, 'Resources')) unless File.exist? File.join(build_dir, 'Resources')
     end
     
     def info_plist_file

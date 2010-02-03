@@ -113,10 +113,14 @@ function Init_Mappings() {
   // setup defaults.
   cr_mappings_default_init();
   Init_Mappings_Menu();
+  Init_Color();
   Init_Mappings_Window();
   Init_Mappings_View();
   Init_Mappings_Button();
   Init_Mappings_CheckBox();
   Init_Mappings_Slider();
+  Init_Mappings_Label();
+  Init_Mappings_Bundle();
+  Init_Mappings_Image();
   Init_Mappings_Geometry();
 };
