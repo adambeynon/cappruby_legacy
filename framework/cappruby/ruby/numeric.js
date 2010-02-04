@@ -26,6 +26,48 @@
 
 rb_cNumeric = nil;
 
+function rb_num_uplus(num, sel) {
+  return num;
+};
+
+function rb_num_uminus(num, sel) {
+  return -num;
+};
+
+function rb_num_plus(a, sel, b) {
+  return a + b;
+};
+
+function rb_num_minus(a, sel, b) {
+  return a - b;
+};
+
+function rb_num_mul(a, sel, b) {
+  return a * b;
+};
+
+function rb_num_div(a, sel, b) {
+  return a / b;
+};
+
+function rb_num_modulo(a, sel, b) {
+  return a % b;
+};
+
+function rb_num_pow(a, sel, b) {
+  return Math.pow(a, b);
+};
+
+function rb_num_equal(a, sel, b) {
+  return a == b;
+};
+
+function rb_num_cmp(a, sel, b) {
+  if (a == b) return 0;
+  if (a < b) return -1;
+  return 1;
+};
+
 function rb_num_gt(a, sel, b) {
   return a > b;
 };
@@ -42,8 +84,28 @@ function rb_num_le(a, sel, b) {
   return a <= b;
 };
 
-function rb_num_equal(a, sel, b) {
-  return a == b;
+function rb_num_rev(a, sel) {
+  return ~a;
+};
+
+function rb_num_and(a, sel, b) {
+  return a & b;
+};
+
+function rb_num_or(a, sel, b) {
+  return a | b;
+};
+
+function rb_num_xor(a, sel, b) {
+  return (a || b) && !(a && b);
+};
+
+function rb_num_lshift(a, sel, b) {
+  return a << b;
+};
+
+function rb_num_rshift(a, sel, b) {
+  return a >> b;
 };
 
 function Init_Numeric() {
@@ -54,10 +116,9 @@ function Init_Numeric() {
   // rb_define_method(rb_cNumeric, "initialize_copy", rb_num_init_copy, 1);
   // rb_define_method(rb_cNumeric, "coerce", rb_num_coerce, 1);
   
-  // rb_define_method(rb_cNumeric, "+@", rb_num_uplus, 0);
-  // rb_define_method(rb_cNumeric, "-@", rb_num_uminus, 0);
-  // rb_define_method(rb_cNumeric, "<=>", rb_num_cmp, 1);
-  // rb_define_method(rb_cNumeric, "eql?", rb_num_eql, 1);
+  rb_define_method(rb_cNumeric, "+@", rb_num_uplus, 0);
+  rb_define_method(rb_cNumeric, "-@", rb_num_uminus, 0);
+  rb_define_method(rb_cNumeric, "eql?", rb_num_equal, 1);
   // rb_define_method(rb_cNumeric, "quo", rb_num_quo, 1);
   // rb_define_method(rb_cNumeric, "fdiv", rb_num_fdiv, 1);
   // rb_define_method(rb_cNumeric, "div", rb_num_div, 1);
@@ -93,26 +154,26 @@ function Init_Numeric() {
   // rb_define_method(rb_cNumeric, "to_s", rb_num_to_s, -1);
   // rb_define_method(rb_cNumeric, "to_f", rb_num_to_f, 0);
 
-  // rb_define_method(rb_cNumeric, "+", rb_num_plus, 1);
-  // rb_define_method(rb_cNumeric, "-", rb_num_minus, 1);
-  // rb_define_method(rb_cNumeric, "*", rb_num_mul, 1);
-  // rb_define_method(rb_cNumeric, "/", rb_num_div, 1);
-  // rb_define_method(rb_cNumeric, "%", rb_num_modulo, 1);
-  // rb_define_method(rb_cNumeric, "**", rb_num_pow, 1);
+  rb_define_method(rb_cNumeric, "+", rb_num_plus, 1);
+  rb_define_method(rb_cNumeric, "-", rb_num_minus, 1);
+  rb_define_method(rb_cNumeric, "*", rb_num_mul, 1);
+  rb_define_method(rb_cNumeric, "/", rb_num_div, 1);
+  rb_define_method(rb_cNumeric, "%", rb_num_modulo, 1);
+  rb_define_method(rb_cNumeric, "**", rb_num_pow, 1);
 
   rb_define_method(rb_cNumeric, "==", rb_num_equal, 1);
-  // rb_define_method(rb_cNumeric, "<=>", rb_num_cmp, 1);
+  rb_define_method(rb_cNumeric, "<=>", rb_num_cmp, 1);
   rb_define_method(rb_cNumeric, ">", rb_num_gt, 1);
   rb_define_method(rb_cNumeric, ">=", rb_num_ge, 1);
   rb_define_method(rb_cNumeric, "<", rb_num_lt, 1);
   rb_define_method(rb_cNumeric, "<=", rb_num_le, 1);
 
-  // rb_define_method(rb_cNumeric, "~", rb_num_rev, 0);
-  // rb_define_method(rb_cNumeric, "&", rb_num_and, 1);
-  // rb_define_method(rb_cNumeric, "|", rb_num_or,  1);
-  // rb_define_method(rb_cNumeric, "^", rb_num_xor, 1);
+  rb_define_method(rb_cNumeric, "~", rb_num_rev, 0);
+  rb_define_method(rb_cNumeric, "&", rb_num_and, 1);
+  rb_define_method(rb_cNumeric, "|", rb_num_or,  1);
+  rb_define_method(rb_cNumeric, "^", rb_num_xor, 1);
   // rb_define_method(rb_cNumeric, "[]", rb_num_aref, 1);
 
-  // rb_define_method(rb_cNumeric, "<<", rb_num_lshift, 1);
-  // rb_define_method(rb_cNumeric, ">>", rb_num_rshift, 1);
+  rb_define_method(rb_cNumeric, "<<", rb_num_lshift, 1);
+  rb_define_method(rb_cNumeric, ">>", rb_num_rshift, 1);
 };

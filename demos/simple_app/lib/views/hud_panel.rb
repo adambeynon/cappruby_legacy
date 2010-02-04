@@ -12,40 +12,29 @@ class CRHUDWindowView < Object.const_get('_CPWindowView')
   
   # puts bundle
   
-  CPColor.colorWithPatternImage(
+  BACKGROUND_COLOR = CPColor.colorWithPatternImage(
     CPNinePartImage.alloc.initWithImageSlices([
-      CPImage[bundle["hud_panel/background_0.png"], CPSizeMake(6, 78)],
-      CPImage[bundle["hud_panel/background_1.png"], CPSizeMake(6, 78)],
-      CPImage[bundle["hud_panel/background_2.png"], CPSizeMake(6, 78)],
-      CPImage[bundle["hud_panel/background_3.png"], CPSizeMake(6, 78)],
-      CPImage[bundle["hud_panel/background_4.png"], CPSizeMake(6, 78)],
-      CPImage[bundle["hud_panel/background_5.png"], CPSizeMake(6, 78)],
-      CPImage[bundle["hud_panel/background_6.png"], CPSizeMake(6, 78)],
-      CPImage[bundle["hud_panel/background_7.png"], CPSizeMake(6, 78)],
-      CPImage[bundle["hud_panel/background_8.png"], CPSizeMake(6, 78)]
+      CPImage[bundle["hud_panel/background_0.png"], CPSizeMake(19, 19)],
+      CPImage[bundle["hud_panel/background_1.png"], CPSizeMake(1, 19)],
+      CPImage[bundle["hud_panel/background_2.png"], CPSizeMake(19, 19)],
+      CPImage[bundle["hud_panel/background_3.png"], CPSizeMake(19, 1)],
+      CPImage[bundle["hud_panel/background_4.png"], CPSizeMake(5, 5)],
+      CPImage[bundle["hud_panel/background_5.png"], CPSizeMake(19, 1)],
+      CPImage[bundle["hud_panel/background_6.png"], CPSizeMake(19, 19)],
+      CPImage[bundle["hud_panel/background_7.png"], CPSizeMake(1, 19)],
+      CPImage[bundle["hud_panel/background_8.png"], CPSizeMake(19, 19)]
     ]))
   
   def initWithFrame(frame, styleMask:style)
     super frame, style
     bundle = CPBundle.bundleForClass(self.class)
         
-    self.backgroundColor = CPColor.colorWithPatternImage(
-      CPNinePartImage.alloc.initWithImageSlices([
-        CPImage[bundle["hud_panel/background_0.png"], CPSizeMake(19, 19)],
-        CPImage[bundle["hud_panel/background_1.png"], CPSizeMake(1, 19)],
-        CPImage[bundle["hud_panel/background_2.png"], CPSizeMake(19, 19)],
-        CPImage[bundle["hud_panel/background_3.png"], CPSizeMake(19, 1)],
-        CPImage[bundle["hud_panel/background_4.png"], CPSizeMake(5, 5)],
-        CPImage[bundle["hud_panel/background_5.png"], CPSizeMake(19, 1)],
-        CPImage[bundle["hud_panel/background_6.png"], CPSizeMake(19, 19)],
-        CPImage[bundle["hud_panel/background_7.png"], CPSizeMake(1, 19)],
-        CPImage[bundle["hud_panel/background_8.png"], CPSizeMake(19, 19)]
-      ]))
+    self.backgroundColor = BACKGROUND_COLOR
     
     bounds = self.bounds
     width = CGRectGetWidth(self.bounds)
     
-    label :stringValue => "Untitled", :frame => [20, 3, width-40, 20] do |label|
+    @title_label = label :text => "Untitled", :frame => [20, 3, width-40, 20] do |label|
       label.hitTests = false
       label.font = CPFont.systemFontOfSize(11)
       label.textColor = CPColor[:white]
@@ -56,6 +45,8 @@ class CRHUDWindowView < Object.const_get('_CPWindowView')
       
       self << label
     end
+    
+    puts self
     
     self
   end

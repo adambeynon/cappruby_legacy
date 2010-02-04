@@ -644,6 +644,19 @@ module CappRuby
         # RHS
         generate_stmt stmt[:rhs], :full_stmt => false, :last_stmt => false
       
+      # LHS is an ivar
+      elsif stmt[:lhs].node == :ivar
+        write "rb_ivar_set(_a,'#{stmt[:lhs][:name]}',"
+        generate_stmt stmt[:rhs], :full_stmt => false, :last_stmt => false
+        write ")"
+      
+      # LHS is an constant
+      elsif stmt[:lhs].node == :constant
+        write "rb_const_set(_a,'#{stmt[:lhs][:name]}',"
+        generate_stmt stmt[:rhs], :full_stmt => false, :last_stmt => false
+        write ")"
+      
+      # LHS is a method call 
       elsif stmt[:lhs].node == :call
         
         write %{cr_send(}
