@@ -42,6 +42,10 @@ function rb_num_le(a, sel, b) {
   return a <= b;
 };
 
+function rb_num_equal(a, sel, b) {
+  return a == b;
+};
+
 function Init_Numeric() {
   rb_cNumeric = objj_getClass("CPNumber");
   
@@ -96,7 +100,7 @@ function Init_Numeric() {
   // rb_define_method(rb_cNumeric, "%", rb_num_modulo, 1);
   // rb_define_method(rb_cNumeric, "**", rb_num_pow, 1);
 
-  // rb_define_method(rb_cNumeric, "==", rb_num_equal, 1);
+  rb_define_method(rb_cNumeric, "==", rb_num_equal, 1);
   // rb_define_method(rb_cNumeric, "<=>", rb_num_cmp, 1);
   rb_define_method(rb_cNumeric, ">", rb_num_gt, 1);
   rb_define_method(rb_cNumeric, ">=", rb_num_ge, 1);

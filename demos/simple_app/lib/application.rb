@@ -1,22 +1,36 @@
+# 
+# application.rb
+# cappruby
+# 
+# Created by Adam Beynon.
+# Copyright 2010 Adam Beynon.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+
+# App MUST include cappruby
+require 'cappruby'
+
 class AppController
   
   def initialize
     super
-  end
-  
-  def maths_testing_stuff
-    
-    puts "before"
-    
-    [1,2,3,4,5,6].each do |a|
-      puts a
-      if a > 3
-        break
-      end
-    end
-    
-    puts "after block"
-    
   end
   
   def applicationWillFinishLaunching(notification)
@@ -24,7 +38,6 @@ class AppController
     CPApp.mainMenu = application_menu
     CPMenu.menuBarVisible = true    
     
-    maths_testing_stuff
     panel =CRHUDPanel.alloc.initWithContentRect CPRectMake(300,200,400,200), styleMask:1
     panel.movableByWindowBackground = true
     panel.orderFront self
@@ -47,8 +60,9 @@ class AppController
   def main_window
     @main_window ||= window :title => "Main Window", :style => :bridge do |win|
       # A button example - using origin will trigger sizeToFit:
-      button :title => "First Button", do |btn|
+      button :title => "First Button", :frame => [100,100,80,24] do |btn|
         btn.on_action { puts "Wow, button was clicked" }
+        btn.on?
         win << btn
       end
       # A simple slider (doesnt send actions..)
@@ -60,7 +74,14 @@ class AppController
       # a_view.backgroundColor = CPColor[:blue]
       win << a_view
       
-      win << check_box(:origin => [300, 200])
+      win << check_box(:frame => [300, 200, 80, 24])
+      
+      win << text_field(:frame => [400, 200, 80,29])
+      win << label(:frame => [400, 300, 80,29])
+      
+      table = CPTableView.alloc.initWithFrame CGRectMake(400, 100, 300, 200)
+      win << table
+      
     end
   end
   

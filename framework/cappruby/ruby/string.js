@@ -69,6 +69,14 @@ function cr_str_titleize(str, sel) {
   return parts.join(" ");
 };
 
+function rb_str_intern(str, sel) {
+  return ID2SYM(str);
+};
+
+function rb_str_plus(str, sel, other) {
+  return str + other;
+};
+
 function Init_String() {
   // string
   rb_cString = objj_getClass("CPString");
@@ -77,6 +85,11 @@ function Init_String() {
   rb_define_method(rb_cString, "to_s", rb_str_to_s, 0);
   
   rb_define_method(rb_cString, "titleize", cr_str_titleize, 0);
+  
+  rb_define_method(rb_cString, "+", rb_str_plus, 1);
+  
+  rb_define_method(rb_cString, "intern", rb_str_intern, 0);
+  rb_define_method(rb_cString, "to_sym", rb_str_intern, 0);
   
   // symbol
   rb_cSymbol = rb_define_class("Symbol", rb_cObject);

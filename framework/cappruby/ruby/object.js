@@ -98,6 +98,16 @@ function rb_mod_const_get(cls, sel, id) {
   return rb_const_get(cls, id);
 };
 
+function rb_obj_ivar_set(cls, sel, name, val) {
+  return rb_ivar_set(cls, name, val);
+};
+
+function rb_obj_send(obj, sel, mid) {
+  // FIXME: check if symbol or not
+  if (mid.isa == rb_cSymbol) mid = mid.ptr;
+  return objj_msgSend(obj, mid);
+};
+
 function Init_Object() {
   
   rb_cObject = objj_getClass("CPObject");
@@ -124,6 +134,8 @@ function Init_Object() {
   rb_include_module(rb_cObject, rb_mKernel);
   
   rb_define_method(rb_mKernel, "class", rb_obj_class, 0);
+  rb_define_method(rb_mKernel, "send:", rb_obj_send, 1);
+  rb_define_method(rb_cModule, "send:", rb_obj_send, 1);
   
   /**
     puts is generally called with a single param, so we use a colon-iszed name
@@ -136,4 +148,6 @@ function Init_Object() {
   rb_define_method(rb_cModule, "attr_reader:", rb_mod_attr_reader, -1);
   rb_define_method(rb_cModule, "attr_writer:", rb_mod_attr_writer, -1);
   rb_define_method(rb_cModule, "attr_accessor:", rb_mod_attr_accessor, -1);
+  
+  rb_define_method(rb_mKernel, "instance_variable_set:", rb_obj_ivar_set, 2);
 };

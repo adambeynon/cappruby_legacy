@@ -112,7 +112,7 @@ module CappRuby
           @local_names[str]
         elsif @arg_names.has_key? str
           @arg_names[str]
-        elsif @block_name
+        elsif @block_name == str
           "_$"
         else
           if @type == RubyBuilder::ISEQ_TYPE_BLOCK
@@ -172,6 +172,11 @@ module CappRuby
         # locals
         if @local_names.length > 0
           r << "var #{@local_names.each_value.to_a.join(", ")};"
+        end
+        
+        # block
+        if @block_name
+          r << "var _$ = cappruby_block; cappruby_block = nil;"
         end
         
         r << "#{@code.join("")}}"
@@ -274,6 +279,11 @@ module CappRuby
         stmt[:arglist].arg.each { |a| @iseq_current.push_arg_name a[:value] }
       end
       
+      # block name..
+      if stmt[:arglist].block
+        @iseq_current.push_block_name(stmt[:arglist].block)
+      end
+      
       # body stmts
       if should_return
         stmt[:bodystmt].each do |b|
@@ -308,6 +318,10 @@ module CappRuby
       # Also, always map initialize to "init" .. note, no semicolon EVER.
       if stmt[:fname] == "initialize"
         sel_name = "init"
+      elsif stmt[:fname].match(/^([a-zA-Z_]*)\=$/)
+        # name of form key= needs to go to setKey:
+        sel_name = stmt[:fname].match(/^([a-zA-Z_]*)\=$/)[1]
+        sel_name = "set#{sel_name[0..0].upcase}#{sel_name[1..-1]}:"
       else
         if objj_style
           sel_name = "#{stmt[:fname]}:"
@@ -316,8 +330,12 @@ module CappRuby
             sel_name << arg[:name]
           end
         else
-          sel_colon = gen_def_should_use_colon?(stmt[:arglist]) ? ":" : ""
-          sel_name = "#{stmt[:fname]}#{sel_colon}"
+          if stmt[:fname].match(/(\<|\!|\?|\>|\=|\!|\[|\])/)
+            sel_name = "#{stmt[:fname]}"
+          else
+            sel_colon = gen_def_should_use_colon?(stmt[:arglist]) ? ":" : ""
+            sel_name = "#{stmt[:fname]}#{sel_colon}"
+          end
         end
       end
       write %{,"#{sel_name}",#{def_iseq},#{is_singleton})}
@@ -330,6 +348,7 @@ module CappRuby
     # single default param.. this might be the case, we just add a defailt
     # value to the selector:)
     def gen_def_should_use_colon?(a)
+      
       # one normal arg, nothing else (block is irrelevant)
       if a.arg_size==1 && a.opt_size== 0 && a.rest_size == 0 && a.post_size == 0
         true
@@ -839,6 +858,29 @@ module CappRuby
       write "vm_break("
       
       write ");"
+    end
+    
+    def generate_assoc_list stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write "rb_hash_new("
+      stmt[:list].each do |assoc|
+        write "," unless stmt[:list].first == assoc
+        generate_stmt assoc[:key], :full_stmt => false, :last_stmt => false
+        write ","
+        generate_stmt assoc[:value], :full_stmt => false, :last_stmt => false
+      end
+      write ")"
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_ivar stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write "rb_ivar_get(_a, '#{stmt[:name]}')"
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_module stmt, context
+      
     end
     
   end

@@ -33,6 +33,10 @@
 */
 function cappruby_main(main_file, args, namedArgs) {
   cappruby_init();
+  // need to require main cappruby.rb file
+  // var libs = rb_dir_s_glob(rb_cDir, 'glob:', '/Frameworks/CappRuby/**/*.rb');
+  // console.log(libs);
+  // require main file
   rb_require_file(main_file);
   // cappruby_file_hash['/lib/application.rb'](cappruby_top_self);
   // cappruby_trial(cappruby_top_self);

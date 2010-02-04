@@ -69,7 +69,7 @@ function cr_view_add_subview(view, sel, sub) {
 };
 
 function Init_Mappings_View() {
-  rb_define_method(CPView, "initWithOptions:", cr_view_init_with_options, 1);
+  rb_define_method(CPView, "init_with_options:", cr_view_init_with_options, 1);
   rb_define_method(CPView, "_dealWithSpecialOptions:", function() {}, 1);
   rb_define_method(CPView, "_dealWithAllRemainingOptions:", cr_view_deal_with_all_remaining_options, 1);
   

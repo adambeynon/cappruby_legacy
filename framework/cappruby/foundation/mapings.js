@@ -105,22 +105,120 @@ function cr_mappings_set_options(obj, hash) {
   
 };
 
+function cr_mappings_button(self, sel, options) {
+  var _$ = cappruby_block; cappruby_block = nil;
+  var h = cr_mappings_collate_options('button', options);
+  
+  
+  
+  
+  
+  var size_to_fit = dictionary_containsKey(h, ID2SYM('origin'));
+  var frame = cr_mappings_do_control_sizing(self, options);
+  
+  var btn = objj_msgSend(objj_msgSend(CPButton, "alloc"), "initWithFrame:", frame);
+  
+  if(_$) { // if block given
+   cr_yield(_$, [btn]);
+  }
+  
+  objj_msgSend(btn, "setTitle:", "My Button");
+  
+  if (size_to_fit) objj_msgSend(btn, 'sizeToFit');
+  
+  return btn;
+};
+
+/**
+  CPButton#on_action(&block)
+  
+  When the action event of the button fires, run the block.
+  
+  This method makes a fake target for the button, and adds a single method, to
+  act as the action, which essentially calls the proc. The proc will have access
+  to the scope in which it was defined.
+*/
+function cr_mappings_on_action(btn, sel) {
+  var _$ = cappruby_block; cappruby_block = nil;
+  if (!_$) {
+    throw "no block given for CPButton#on_action"
+  }
+  
+  var target = class_createInstance(rb_cObject);
+  rb_define_singleton_method(target, "button_action:",function(self, sel, obj) {
+    // call the proc with the "sender" as the param (if needed)
+    rb_ivar_get(self, '@button_action')(obj);
+  }, 1);
+  
+  rb_ivar_set(target, '@button_action', _$);
+  
+  objj_msgSend(btn, "setTarget:", target); 
+  objj_msgSend(btn, "setAction:", 'button_action:');  
+  
+  return btn;
+};
+
+/**
+  cr_mappings_do_map
+  
+  Make a mapping from name, to the class.
+  This will call initWithOptions:(options) on the given class. The method will 
+  be added to the Kernel module.
+*/
+function cr_mappings_do_map(name, klass, default_options) {
+  var f = function(cls, sel, options) {
+    var _$ = cappruby_block; cappruby_block = nil;
+    var h = cr_mappings_collate_options(name, options);
+
+    var obj = objj_msgSend(klass, "alloc");
+    objj_msgSend(obj, "init_with_options:", h);
+
+    if (_$) cr_yield(_$, [obj]);
+    return obj;
+  };
+  
+  rb_define_method(rb_mKernel, name, f, 1);
+  cr_mappings_defaults_store[name] = default_options;
+};
+
+/**
+  New system
+*/
+function cr_mappings_s_defaults(cls, sel, name, default_options) {
+  var f = function(k, sel, options) {
+    var _$ = cappruby_block; cappruby_block = nil;
+    // get all correct options from defaults and user.
+    var h = new objj_dictionary();
+    rb_hash_merge(h, 'merge:', default_options);
+    rb_hash_merge(h, 'merge:', options);
+    
+    // resulting obj
+    var obj = objj_msgSend(cls, "alloc");
+    objj_msgSend(obj, "init_with_options:", h);
+
+    if (_$) cr_yield(_$, [obj]);
+    return obj;
+  };
+  
+  rb_define_method(rb_mKernel, name.ptr + ":", f, 1);
+  
+  return cls;
+};
+
+
 /**
   Initialize mappings. All methods are added to Kernel module to avoid 
   over populating the Object namespace. (hide from Cappuccino).
 */
 function Init_Mappings() {
+  
+  rb_define_method(rb_cModule, "defaults:", cr_mappings_s_defaults, -1);
+  
   // setup defaults.
   cr_mappings_default_init();
   Init_Mappings_Menu();
-  Init_Color();
   Init_Mappings_Window();
   Init_Mappings_View();
-  Init_Mappings_Button();
-  Init_Mappings_CheckBox();
   Init_Mappings_Slider();
-  Init_Mappings_Label();
-  Init_Mappings_Bundle();
-  Init_Mappings_Image();
   Init_Mappings_Geometry();
 };

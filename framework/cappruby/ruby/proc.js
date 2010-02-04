@@ -1,5 +1,5 @@
 /* 
- * color.js
+ * proc.js
  * cappruby
  * 
  * Created by Adam Beynon.
@@ -24,11 +24,15 @@
  * THE SOFTWARE.
  */
 
-function cr_color_aref(cls, sel, sym) {
-  var name = sym.ptr + 'Color';
-  return objj_msgSend(CPColor, name);
+rb_cProc = nil;
+
+function rb_proc_call(proc, sel) {
+  var args = Array.prototype.slice.call(arguments, 2);
+  return proc.apply(proc, args);
 };
 
-function Init_Color() {
-  rb_define_singleton_method(CPColor, "[]", cr_color_aref, 1);
+function Init_Proc() {
+  rb_cProc = objj_getClass("CPBlock");
+  
+  rb_define_method(rb_cProc, "call:", rb_proc_call, -1);
 };

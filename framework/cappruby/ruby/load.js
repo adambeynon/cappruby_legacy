@@ -93,6 +93,7 @@ function Init_Load() {
   // loadpaths
   ruby_incpush("");
   ruby_incpush("/lib");
+  ruby_incpush('/Frameworks/CappRuby');
   
   rb_define_method(rb_mKernel, "require:", rb_f_require, 1);
 };

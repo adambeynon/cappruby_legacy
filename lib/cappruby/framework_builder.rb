@@ -53,6 +53,19 @@ module CappRuby
           # should really minify
           f.puts i
         end
+        
+        # now we need to write all .rb files (in opal compatible way)
+        rb_sources = File.join(ROOTPATH, 'framework', '**', '*.rb')
+        root_framework_path = "#{ROOTPATH}/framework"
+        Dir.glob(rb_sources).each do |rb|
+          # puts rb
+          name = /^#{root_framework_path}(.*)$/.match(rb)[1]
+          name = "/Frameworks/CappRuby#{name}"
+          # puts name
+          b = RubyBuilder.new(rb, self, name)
+          c = b.build!
+          f.puts %{cappruby_file("#{name}", #{c});}
+        end
       end
     end
     
