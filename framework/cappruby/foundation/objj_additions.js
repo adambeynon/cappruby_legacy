@@ -27,6 +27,8 @@
 /**
   Stuff in here are things that are generally useful, and could be implemented
   as part of vanilla objj.
+  
+  They are kept here to avoid possible conflicts in the future.
 */ 
 
 /**
@@ -44,11 +46,11 @@ T_SYMBOL  = 8;
 T_HASH    = 9;
 T_BOOLEAN = 10;
 
-//  type support
-Number.prototype.objj_flags = T_NUMBER;
-Array.prototype.objj_flags = T_ARRAY;
-Boolean.prototype.objj_flags = T_BOOLEAN;
-Function.prototype.objj_flags = T_PROC;
+// //  type support
+// Number.prototype.objj_flags = T_NUMBER;
+// Array.prototype.objj_flags = T_ARRAY;
+// Boolean.prototype.objj_flags = T_BOOLEAN;
+// Function.prototype.objj_flags = T_PROC;
 
 /**
   CLS_SINGLETON
@@ -74,11 +76,19 @@ function objj_duplicateClass(klass, name) {
 /**
   Proc/Block/Func
 */
-@implementation CPBlock : CPObject
-{
-  
-}
-
-@end
+objj_registerClassPair(objj_allocateClassPair(CPObject, "CPBlock"));
 
 Function.prototype.isa = CPBlock;
+
+/**
+  Boolean/BOOL/bool
+*/
+objj_registerClassPair(objj_allocateClassPair(CPObject, "CPBoolean"));
+
+Boolean.prototype.isa = CPBoolean;
+
+/**
+  NilClass .. currently wont work as nil in objj is null, but we still use it in
+  cappruby (in msgSend we detect nil, and set the class to CPNil)
+*/
+objj_registerClassPair(objj_allocateClassPair(CPObject, "CPNil"));

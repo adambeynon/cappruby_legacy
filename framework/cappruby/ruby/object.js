@@ -29,6 +29,8 @@ rb_cBasicObject = nil;
 rb_cModule = nil;
 rb_cClass = nil;
 rb_mKernel = nil;
+rb_cBoolean = nil;
+rb_cNilClass = nil;
 
 function rb_basic_obj_alloc(cls, sel) {
   return class_createInstance(cls);
@@ -108,6 +110,67 @@ function rb_obj_send(obj, sel, mid) {
   return objj_msgSend(obj, mid);
 };
 
+function rb_obj_is_instance_of(obj, sel, cls) {
+  return objj_msgSend(obj, 'isMemberOfClass:', cls);
+};
+
+function rb_obj_is_kind_of(obj, sel, cls) {
+  return objj_msgSend(obj, 'isKindOfClass:', cls);
+};
+
+function rb_obj_tap(obj, sel) {
+  var _$ = cappruby_block; cappruby_block = nil;
+  if (!_$) throw "no block passed to obj#tap"
+
+  cr_yield(_$, [obj]);
+  return obj;
+};
+
+
+function rb_nil_to_i() {
+  return 0;
+};
+
+function rb_nil_to_f() {
+  return 0.0;
+};
+
+function rb_nil_to_s() {
+  return "";
+};
+
+function rb_nil_to_a() {
+  return [];
+};
+
+function rb_nil_inspect() {
+  return "nil";
+};
+
+function rb_nil_nil_p() {
+  return true;
+};
+
+
+
+
+
+function rb_bool_to_s(self, sel) {
+  return self ? "true" : "false";
+};
+
+function rb_bool_and(self, sel, other) {
+  return self ? RTEST(other) : false; 
+};
+
+function rb_bool_or(self, sel, other) {
+  return self ? true : RTEST(other); 
+};
+
+function rb_bool_xor(self, sel, other) {
+  return self ? !RTEST(other) : !RTEST(other);
+};
+
 function Init_Object() {
   
   rb_cObject = objj_getClass("CPObject");
@@ -126,6 +189,11 @@ function Init_Object() {
   rb_include_module(rb_cObject.isa, rb_cClass);
   rb_include_module(rb_cObject.isa, rb_cModule);
   
+  // rb_define_method(rb_cBasicObject, "==", rb_obj_equal, 1);
+  // rb_define_method(rb_cBasicObject, "equal?", rb_obj_equal, 1);
+  // rb_define_method(rb_cBasicObject, "!", rb_obj_not, 0);
+  // rb_define_method(rb_cBasicObject, "!=", rb_obj_not_equal, 1);
+  
   rb_define_method(rb_cModule, "const_get:", rb_mod_const_get, -1);
   // rb_define_method(rb_cModule, "const_set", rb_mod_const_set, 2);
   
@@ -136,6 +204,11 @@ function Init_Object() {
   rb_define_method(rb_mKernel, "class", rb_obj_class, 0);
   rb_define_method(rb_mKernel, "send:", rb_obj_send, 1);
   rb_define_method(rb_cModule, "send:", rb_obj_send, 1);
+  
+  rb_define_method(rb_mKernel, "instance_of?", rb_obj_is_instance_of, 1);
+  rb_define_method(rb_mKernel, "kind_of?", rb_obj_is_kind_of, 1);
+  rb_define_method(rb_mKernel, "is_a?", rb_obj_is_kind_of, 1);
+  rb_define_method(rb_mKernel, "tap", rb_obj_tap, 0);
   
   /**
     puts is generally called with a single param, so we use a colon-iszed name
@@ -150,4 +223,26 @@ function Init_Object() {
   rb_define_method(rb_cModule, "attr_accessor:", rb_mod_attr_accessor, -1);
   
   rb_define_method(rb_mKernel, "instance_variable_set:", rb_obj_ivar_set, 2);
+  
+  // NilClass
+  rb_cNilClass = objj_getClass("CPNil");
+  
+  rb_define_method(rb_cNilClass, "to_i", rb_nil_to_i, 0);
+  rb_define_method(rb_cNilClass, "to_f", rb_nil_to_f, 0);
+  rb_define_method(rb_cNilClass, "to_s", rb_nil_to_s, 0);
+  rb_define_method(rb_cNilClass, "to_a", rb_nil_to_a, 0);
+  rb_define_method(rb_cNilClass, "inspect", rb_nil_inspect, 0);
+  rb_define_method(rb_cNilClass, "&", rb_bool_and, 1);
+  rb_define_method(rb_cNilClass, "|", rb_bool_or, 1);
+  rb_define_method(rb_cNilClass, "^", rb_bool_xor, 1);
+  rb_define_method(rb_cNilClass, "nil?", rb_nil_nil_p, 0);
+  
+  // Boolean - true/false
+  rb_cBoolean = objj_getClass("CPBoolean");
+  
+  rb_define_method(rb_cBoolean, "to_s", rb_bool_to_s, 0);
+  rb_define_method(rb_cBoolean, "&", rb_bool_and, 1);
+  rb_define_method(rb_cBoolean, "|", rb_bool_or, 1);
+  rb_define_method(rb_cBoolean, "^", rb_bool_xor, 1);
+
 };

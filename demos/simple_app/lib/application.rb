@@ -38,7 +38,7 @@ class AppController
     CPApp.mainMenu = application_menu
     CPMenu.menuBarVisible = true    
     
-    panel =CRHUDPanel.alloc.initWithContentRect CPRectMake(300,200,400,200), styleMask:1
+    panel = CRHUDPanel.alloc.initWithContentRect CPRectMake(300,200,400,200), styleMask:1
     panel.movableByWindowBackground = true
     panel.orderFront self
   end
