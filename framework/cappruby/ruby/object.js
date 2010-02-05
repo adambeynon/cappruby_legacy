@@ -84,7 +84,7 @@ function rb_objj_define_kvo_setter(cls, id) {
   var k = ["set", id.charAt(0).toUpperCase(), id.substr(1), ":"].join("");
   rb_define_method(cls, k, function(self, sel, val) {
     var key = id;
-    return rb_ivar_set(self, key, val);
+    return rb_ivar_set(self, '@' + key, val);
   }, 1);
 };
 
@@ -92,8 +92,14 @@ function rb_objj_define_kvo_getter(cls, id) {
   id = objj_msgSend(id, "to_s");
   rb_define_method(cls, id, function(self, sel, val) {
     var key = id;
-    return rb_ivar_get(self, id);
+    return rb_ivar_get(self, '@' + id);
   }, 0);
+};
+
+function rb_obj_new_m(cls, sel) {
+  var args = Array.prototype.slice.call(arguments, 2);
+  var o = objj_msgSend(cls, "alloc");
+  return cr_send(o, 'init', args, nil, 0);
 };
 
 function rb_mod_const_get(cls, sel, id) {
@@ -124,6 +130,10 @@ function rb_obj_tap(obj, sel) {
 
   cr_yield(_$, [obj]);
   return obj;
+};
+
+function rb_obj_rand(obj, sel, num) {
+  return Math.round(Math.random() * num);
 };
 
 
@@ -217,10 +227,14 @@ function Init_Object() {
   rb_define_method(rb_mKernel, "puts:", rb_f_puts, 1);
   rb_define_method(rb_cModule, "puts:", rb_f_puts, 1);
   
+  rb_define_method(rb_mKernel, "rand:", rb_obj_rand, 1);
+  
   // rb_define_method(rb_cModule, "attr:", rb_mod_attr, -1);
   rb_define_method(rb_cModule, "attr_reader:", rb_mod_attr_reader, -1);
   rb_define_method(rb_cModule, "attr_writer:", rb_mod_attr_writer, -1);
   rb_define_method(rb_cModule, "attr_accessor:", rb_mod_attr_accessor, -1);
+  
+  rb_define_method(rb_cModule, "new:", rb_obj_new_m, 1);
   
   rb_define_method(rb_mKernel, "instance_variable_set:", rb_obj_ivar_set, 2);
   

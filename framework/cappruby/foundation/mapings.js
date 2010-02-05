@@ -216,9 +216,7 @@ function Init_Mappings() {
   
   // setup defaults.
   cr_mappings_default_init();
-  Init_Mappings_Menu();
   Init_Mappings_Window();
   Init_Mappings_View();
-  Init_Mappings_Slider();
   Init_Mappings_Geometry();
 };

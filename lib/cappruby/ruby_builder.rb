@@ -365,9 +365,7 @@ module CappRuby
     def gen_def_should_use_colon?(a)
       
       # one normal arg, nothing else (block is irrelevant)
-      if a.arg_size==1 && a.opt_size== 0 && a.rest_size == 0 && a.post_size == 0
-        true
-      elsif a.arg_size==0 && a.opt_size==1 && a.rest_size==0 && a.post_size == 0
+      if a.arg_size > 0 || a.opt_size > 0 || a.rest_size > 0 || a.post_size > 0
         true
       else
         false
@@ -598,12 +596,35 @@ module CappRuby
     # know the method uses a block, so we need to make sure we can get it, and
     # put it into a local var.
     def generate_yield stmt, context
-      write "\"block\""
+      write "return " if context[:last_stmt] and context[:full_stmt]
+      write "cr_yield(_$,["
+      
+      if stmt[:call_args] and stmt[:call_args][:args]
+        stmt[:call_args][:args].each do |a|
+          write "," unless stmt[:call_args][:args].first == a
+          generate_stmt a, :full_stmt => false, :last_stmt => false
+        end
+      end
+      
+      write "])"
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_block_given stmt, context
+      write "return " if context[:last_stmt] and context[:full_stmt]
+      write "(_$ ? true :  false)"
+      write ";" if context[:full_stmt]
     end
     
     def generate_string str, context
       write "return " if context[:last_stmt] and context[:full_stmt]
-      write %{"#{str[:value][0][:value]}"}
+      if str[:value].length == 0
+        write %{""}
+      elsif str[:value].length == 1
+        write %{"#{str[:value][0][:value]}"}
+      else
+        write %{""}
+      end
       write ";" if context[:full_stmt]
     end
     
@@ -842,6 +863,24 @@ module CappRuby
       write ";" if context[:full_stmt]
     end
     
+    def generate_if_mod(stmt, context)
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write "(function(){"
+      
+      # if/unless mod
+      if stmt.node == :if_mod
+        write "if(RTEST("
+      else
+        write "if(!RTEST("
+      end
+      
+      generate_stmt stmt[:expr], :full_stmt => false, :last_stmt => false
+      write ")){"
+      generate_stmt stmt[:stmt], :full_stmt => true, :last_stmt => false
+      write "}})()"
+      write ";" if context[:full_stmt]
+    end
+    
     def generate_orop stmt, context
       write "return " if context[:full_stmt] and context[:last_stmt]
       # we must wrap lhs and rhs in functions. we do not want to evaluate them
@@ -909,6 +948,12 @@ module CappRuby
     
     def generate_module stmt, context
       
+    end
+    
+    def generate_nil stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write "nil"
+      write ";" if context[:full_stmt]
     end
     
   end

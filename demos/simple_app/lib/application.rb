@@ -81,9 +81,9 @@ class AppController
         win << slider
       end
       
-      a_view = Gauge.alloc.initWithFrame CPRectMake(300,0,100,100)
+      # a_view = AnimatedView.alloc.initWithFrame CPRectMake(500,0,500,500)
       # a_view.backgroundColor = CPColor[:blue]
-      win << a_view
+      # win << a_view
       
       win << check_box(:frame => [300, 200, 80, 24])
       
@@ -110,11 +110,6 @@ class AppController
         edit.item :cut, :key => "x"
         edit.item :paste, :key => "v"
       end
-      main.separator
-      item = CPMenuItem.new
-      item.view = Gauge.alloc.initWithFrame CPRectMake(0,0,100,100)
-      item.view.backgroundColor = CPColor[:blue]
-      main.addItem item
     end
   end
   

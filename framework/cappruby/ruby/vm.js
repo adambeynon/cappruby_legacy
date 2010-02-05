@@ -132,9 +132,11 @@ cr_b = function cr_send(recv, id, argv, blockiseq, op_flag) {
   if (!imp) {
     if (id[id.length -1] == ":") {
       // already has a colon.. so remove it and try
+      console.log("could try this");
     }
     else {
       // doesnt have a colon, so add one and try..
+      imp = rb_search_method(klass, id + ":");
     }
   }
   
@@ -154,6 +156,7 @@ cr_b = function cr_send(recv, id, argv, blockiseq, op_flag) {
       case 3: return imp(recv, id, argv[0], argv[1], argv[2]);
       case 4: return imp(recv, id, argv[0], argv[1], argv[2], argv[3]);
       case 5: return imp(recv, id, argv[0], argv[1], argv[2], argv[3], argv[4]);
+      case 6: return imp(recv, id, argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]);
       default: throw "currently too many args: " + argv.length + " for " + id
     }
   }

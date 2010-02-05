@@ -1,4 +1,0 @@
-class Gauge < CPView
-  
-  
-end

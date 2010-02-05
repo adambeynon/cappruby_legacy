@@ -83,6 +83,7 @@ function cappruby_init() {
   Init_Array();
   Init_String();
   Init_Numeric();
+  Init_Hash();
   Init_Proc();
   Init_VM();
   Init_Load();

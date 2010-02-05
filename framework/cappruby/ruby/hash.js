@@ -156,7 +156,7 @@ function Init_Hash() {
   
   // rb_define_singleton_method(rb_cHash, "[]", rb_hash_s_create, -1);
   // rb_define_singleton_method(rb_cHash, "try_convert", rb_hash_s_try_convert, 1);
-  rb_define_method(rb_cHash, "initialize", rb_hash_initialize, -1);
+  // rb_define_method(rb_cHash, "initialize", rb_hash_initialize, -1);
 
   rb_define_method(rb_cHash, "to_hash", rb_hash_to_hash, 0);
   rb_define_method(rb_cHash, "to_a", rb_hash_to_a, 0);
