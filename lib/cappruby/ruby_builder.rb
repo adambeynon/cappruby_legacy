@@ -993,5 +993,48 @@ module CappRuby
       write ";" if context[:full_stmt]
     end
     
+    # yuck!
+    def generate_case stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write "(function($c){"
+      stmt[:body].each do |c|
+        if c.node == :when
+          # clauses
+          if stmt[:body].first == c
+            write "if"
+          else
+            write "else if"
+          end
+          write "("
+          c[:args].each do |a|
+            write " || " unless c[:args].first == a
+            write "cr_send("
+            generate_stmt a, :full_stmt => false, :last_stmt => false
+            write ",'===',[$c],nil,0)"
+          end
+          write") {"
+          c[:stmt].each do |s|
+            generate_stmt s, :full_stmt => true, :last_stmt => c[:stmt].last ==s
+          end
+          write "}"
+        else # it is an else, so anything else goes
+          write "else {"
+          c[:stmt].each do |s|
+            generate_stmt s, :full_stmt => true, :last_stmt => c[:stmt].last ==s
+          end
+          write "}"
+        end
+      end
+      write "})("
+      # case switch stmt
+      if stmt[:expr]
+        generate_stmt stmt[:expr], :full_stmt => false, :last_stmt => false
+      else
+        write "true"
+      end
+      write ")"
+      write ";" if context[:full_stmt]
+    end
+    
   end
 end

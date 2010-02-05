@@ -1,5 +1,5 @@
 # 
-# view.rb
+# json.rb
 # cappruby
 # 
 # Created by Adam Beynon.
@@ -24,30 +24,10 @@
 # THE SOFTWARE.
 #
 
-class CPView < CPResponder
+# class JSON
   
-  def init_with_options(options)
-    if options[:origin]
-      origin = options.delete(:origin).to_point
-      options.delete(:frame)
-      frame = CGRectMake(origin.x, origin.y, 0, 0)
-    else
-      frame = options.delete(:frame).to_rect
-    end
+  # def self.(o)
     
-    initWithFrame frame
-    
-    # deal with any options left
-    options.each do |k, v|
-      key = k.to_s.to_kvo_setter
-      send key, v
-    end
-    
-    self
-  end
+  # end
   
-  def <<(other)
-    addSubview other
-  end
-  
-end
+# end

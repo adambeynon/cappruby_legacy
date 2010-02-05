@@ -69,6 +69,10 @@ function cr_str_titleize(str, sel) {
   return parts.join(" ");
 };
 
+function cr_str_to_kvo_setter(str, sel) {
+  return ['set', str.charAt(0).toUpperCase(), str.substr(1), ':'].join('');
+};
+
 function rb_str_intern(str, sel) {
   return ID2SYM(str);
 };
@@ -84,6 +88,7 @@ function Init_String() {
   
   
   rb_define_method(rb_cString, "titleize", cr_str_titleize, 0);
+  rb_define_method(rb_cString, "to_kvo_setter", cr_str_to_kvo_setter, 0);
   
   // rb_define_method(rb_cString, "initialize", rb_str_init, -1);
   // rb_define_method(rb_cString, "initialize_copy", rb_str_replace, 1);

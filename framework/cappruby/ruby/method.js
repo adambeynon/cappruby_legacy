@@ -67,6 +67,7 @@ function rb_global_functions_search(id) {
  modules as well, which are attatched to classes via rb_included_modules.
 */
 function rb_search_method(klass, id) {
+  // console.log("== " + id);
  var m = klass.method_dtable[id];
 
  if (!m) {
@@ -76,7 +77,9 @@ function rb_search_method(klass, id) {
    while (klass) {
      if (klass.rb_included_modules) {
        for (var i = 0; i < klass.rb_included_modules.length; i++) {
+         // console.log(klass.rb_included_modules[i].name);
          if (m = klass.rb_included_modules[i].method_dtable[id]) {
+           // console.log("found");
            break;
          }
        }

@@ -102,6 +102,11 @@ function rb_obj_new_m(cls, sel) {
   return cr_send(o, 'init', args, nil, 0);
 };
 
+function rb_mod_eqq(mod, sel, obj) {
+  // console.log(obj);
+  return cr_send(obj, 'is_a?', [mod], nil, 0);
+};
+
 function rb_mod_const_get(cls, sel, id) {
   return rb_const_get(cls, id);
 };
@@ -110,10 +115,10 @@ function rb_obj_ivar_set(cls, sel, name, val) {
   return rb_ivar_set(cls, name, val);
 };
 
-function rb_obj_send(obj, sel, mid) {
+function rb_obj_send(obj, sel, mid, arg1, arg2, arg3, arg4) {
   // FIXME: check if symbol or not
   if (mid.isa == rb_cSymbol) mid = mid.ptr;
-  return objj_msgSend(obj, mid);
+  return objj_msgSend(obj, mid, arg1, arg2, arg3, arg4);
 };
 
 function rb_obj_is_instance_of(obj, sel, cls) {
@@ -228,6 +233,22 @@ function Init_Object() {
   rb_define_method(rb_cModule, "puts:", rb_f_puts, 1);
   
   rb_define_method(rb_mKernel, "rand:", rb_obj_rand, 1);
+  
+  // rb_define_method(rb_cModule, "freeze", rb_mod_freeze, 0);
+  rb_define_method(rb_cModule, "===", rb_mod_eqq, 1);
+  // rb_define_method(rb_cModule, "==", rb_obj_equal, 1);
+  // rb_define_method(rb_cModule, "<=>",  rb_mod_cmp, 1);
+  // rb_define_method(rb_cModule, "<",  rb_mod_lt, 1);
+  // rb_define_method(rb_cModule, "<=", rb_class_inherited_p, 1);
+  // rb_define_method(rb_cModule, ">",  rb_mod_gt, 1);
+  // rb_define_method(rb_cModule, ">=", rb_mod_ge, 1);
+  // rb_define_method(rb_cModule, "initialize_copy", rb_mod_init_copy, 1);
+  // rb_define_method(rb_cModule, "to_s", rb_mod_to_s, 0);
+  // rb_define_method(rb_cModule, "included_modules", rb_mod_included_modules, 0);
+  // rb_define_method(rb_cModule, "include?", rb_mod_include_p, 1);
+  // rb_define_method(rb_cModule, "name", rb_mod_name, 0);
+  // rb_define_method(rb_cModule, "ancestors", rb_mod_ancestors, 0);
+  // 
   
   // rb_define_method(rb_cModule, "attr:", rb_mod_attr, -1);
   rb_define_method(rb_cModule, "attr_reader:", rb_mod_attr_reader, -1);

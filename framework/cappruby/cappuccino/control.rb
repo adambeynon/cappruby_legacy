@@ -54,7 +54,7 @@ class CPControl < CPView
   end
   
   def text=(text)
-    self.stringValue = text
+    setStringValue text
   end
   
   def to_i

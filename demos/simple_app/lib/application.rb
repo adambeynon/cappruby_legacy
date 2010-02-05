@@ -48,11 +48,11 @@ class AppController
   def applicationDidFinishLaunching(notification)
     # a = AppController.new(10, 20, 30)
     # puts a
-    r = CPURLRequest.requestWithURL "http://twitter.com/status/user_timeline/macruby.json?count=10"
+    # r = CPURLRequest.requestWithURL "http://twitter.com/status/user_timeline/macruby.json?count=10"
     
-    c = CPJSONPConnection.connectionWithRequest r, 
-                                       callback:"callback", 
-                                       delegate:self
+    # c = CPJSONPConnection.connectionWithRequest r, 
+                                       # callback:"callback", 
+                                       # delegate:self
   end
   
   def connection c, didReceiveData:data
@@ -69,7 +69,7 @@ class AppController
   
   # return or build the main window
   def main_window
-    @main_window ||= window :title => "Main Window" do |win|
+    @main_window ||= window :title => "Main Window", :style => :bridge do |win|
       # A button example - using origin will trigger sizeToFit:
       button :title => "First Button", :frame => [100,100,80,24] do |btn|
         btn.on_action { puts "Wow, button was clicked" }

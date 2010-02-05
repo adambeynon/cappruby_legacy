@@ -114,6 +114,8 @@ function rb_num_rshift(a, sel, b) {
 
 function Init_Numeric() {
   rb_cNumeric = objj_getClass("CPNumber");
+  rb_const_set(rb_cObject, "Fixnum", rb_cNumeric);
+  rb_const_set(rb_cObject, "Number", rb_cNumeric);
   
   // rb_define_method(rb_cNumeric, "singleton_method_added", rb_num_sadded, 1);
   // rb_include_module(rb_cNumeric, rb_mComparable);

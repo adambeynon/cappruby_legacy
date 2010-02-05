@@ -46,6 +46,21 @@ function cr_size_new(w, h) {
   return r;
 };
 
+function cr_rect_x(r, sel) {
+  return r.origin.x;
+};
+
+function cr_rect_y(r, sel) {
+  return r.origin.y;
+};
+
+function cr_rect_width(r, sel) {
+  return r.size.width;
+};
+
+function cr_rect_height(r, sel) {
+  return r.size.height;
+};
 
 function Init_Mappings_Geometry() {
   
@@ -56,6 +71,11 @@ function Init_Mappings_Geometry() {
   rb_define_singleton_method(cr_cRect, "new", function(cls, sel, x, y, w, h) {
     return cr_rect_new(x, y, w, h);
   }, 4);
+  
+  rb_define_method(cr_cRect, "x", cr_rect_x, 0);
+  rb_define_method(cr_cRect, "y", cr_rect_y, 0);
+  rb_define_method(cr_cRect, "width", cr_rect_width, 0);
+  rb_define_method(cr_cRect, "height", cr_rect_height, 0);
   
   rb_define_singleton_method(cr_cPoint, "new", function(cls, sel, x, y) {
     return cr_point_new(x, y);

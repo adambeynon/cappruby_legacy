@@ -75,6 +75,5 @@ function Init_Mappings() {
   rb_define_method(rb_cModule, "constant:", cr_mappings_s_constant, -1);
   rb_define_method(rb_cModule,"constant_name:", cr_mappings_s_constant_name,-1);
 
-  Init_Mappings_View();
   Init_Mappings_Geometry();
 };

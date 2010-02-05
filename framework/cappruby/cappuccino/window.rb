@@ -43,7 +43,7 @@ class CPWindow < CPResponder
     :hud => CPHUDBackgroundWindowMask
   }
   
-  def init_with_options(options, &block)
+  def init_with_options(options)
     style_options = options.delete(:style)
     style_constants = self.class.constant_name(:style)
     # puts style_options.name
@@ -57,9 +57,7 @@ class CPWindow < CPResponder
     frame = options.delete(:frame).to_rect
     
     initWithContentRect frame, styleMask:style
-    
-    yield self if block_given?
-    
+        
     # for now, just assume title: we shuld really go through all remaining
     # options
     self.title = options.delete(:title)
