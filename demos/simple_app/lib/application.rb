@@ -27,6 +27,8 @@
 # App MUST include cappruby
 require 'cappruby'
 
+include CappRuby
+
 class AppController
   
   def initialize
@@ -46,6 +48,15 @@ class AppController
   def applicationDidFinishLaunching(notification)
     # a = AppController.new(10, 20, 30)
     # puts a
+    r = CPURLRequest.requestWithURL "http://twitter.com/status/user_timeline/macruby.json?count=10"
+    
+    c = CPJSONPConnection.connectionWithRequest r, 
+                                       callback:"callback", 
+                                       delegate:self
+  end
+  
+  def connection c, didReceiveData:data
+    puts data
   end
   
   def on_show_about_window

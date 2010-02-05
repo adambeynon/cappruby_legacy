@@ -45,11 +45,25 @@ cappruby_block = nil;
 */
 cappruby_top_self = nil;
 
+function cr_top_s_to_s(top, sel) {
+  return "main";
+};
+
+function cr_top_s_include(top, sel) {
+  var args = Array.prototype.slice.call(arguments, 2);
+  for (var i = 0; i < args.length; i++) {
+    rb_include_module(rb_cObject, args[i]);
+  }
+  return top;
+};
+
 /**
   Initialize vm
 */
 function Init_VM() {
   cappruby_top_self = class_createInstance(rb_cObject);
+  rb_define_singleton_method(cappruby_top_self, "to_s", cr_top_s_to_s, 0);
+  rb_define_singleton_method(cappruby_top_self, "include:",cr_top_s_include, 0);
 };
 
 /**
@@ -60,11 +74,15 @@ function Init_VM() {
 cr_a = function cr_defineclass(base, super_class, name, body, flag) {
   var klass;
   switch (flag) {
+    // case 0 - define normal class
     case 0:
       if (super_class == nil) super_class = CPObject;
       klass = rb_define_class(name, super_class);
       body(klass);
       break;
+    // case 2 - define module
+    case 2:
+      throw "m"
     default:
       throw "unknwon defineclass type"
   }

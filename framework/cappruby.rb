@@ -24,7 +24,7 @@
 # THE SOFTWARE.
 #
 
-module CappRuby
+class CappRuby
   
   
   

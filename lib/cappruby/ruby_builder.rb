@@ -43,6 +43,7 @@ module CappRuby
         @local_names = { }
         # same, for args
         @arg_names = { }
+        @arg_names_ordered = []
         # has a value, other than nil, of the str used to set the block param
         # e.g. def method(&adam)' end ... this will be "adam", incase we 
         # reference it. The block always points to _$, whether we name it or not
@@ -127,6 +128,7 @@ module CappRuby
       def push_arg_name(str)
         @local_current = @local_current.next
         @arg_names[str] = "_#{@local_current}"
+        @arg_names_ordered.push str
         "_#{@local_current}"
       end
       
@@ -155,15 +157,22 @@ module CappRuby
           r << "function(_a"
         when RubyBuilder::ISEQ_TYPE_METHOD
           # _a is self, _b is the selector
+          # pp @arg_names
           r << "function(_a,_b"
-          @arg_names.each_value { |v| r << ",#{v}" }
+          @arg_names_ordered.each do |a|
+            r << ",#{@arg_names[a]}"
+          end
+          # @arg_names.each_value { |v| r << ",#{v}" }
         when RubyBuilder::ISEQ_TYPE_CLASS
           # _a is self (the class just created/modified)
           r << "function(_a"
         when RubyBuilder::ISEQ_TYPE_BLOCK
           # no self, just args etc..
           r << "function("
-          r << @arg_names.each_value.to_a.join(",")
+          @arg_names_ordered.each do |a|
+            r << "," unless @arg_names_ordered.first == a
+            r << "#{@arg_names[a]}"
+          end
         else
           abort "erm, unknwon iseq type"
         end
@@ -276,7 +285,13 @@ module CappRuby
       
       # arg names
       if stmt[:arglist].arg
-        stmt[:arglist].arg.each { |a| @iseq_current.push_arg_name a[:value] }
+        stmt[:arglist].arg.each do |a| 
+          @iseq_current.push_arg_name a[:value]
+        
+          # if objj_style
+            # puts a[:value]
+          # end
+        end
       end
       
       # block name..
