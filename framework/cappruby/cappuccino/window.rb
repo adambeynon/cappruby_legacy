@@ -1,5 +1,5 @@
 # 
-# menu.rb
+# window.rb
 # cappruby
 # 
 # Created by Adam Beynon.
@@ -24,37 +24,51 @@
 # THE SOFTWARE.
 #
 
-class CPMenu
+class CPWindow < CPResponder
   
-  defaults :menu, {
-    :title => ""
+  defaults :window, {
+    :title => "Window",
+    :frame => [100, 100, 400, 300],
+    :style => [:titled, :closable, :miniaturizable, :resizable]
+  }
+  
+  constant :style, {
+    :borderless => CPBorderlessWindowMask,
+    :titled => CPTitledWindowMask,
+    :closable => CPClosableWindowMask,
+    :miniaturizable => CPMiniaturizableWindowMask,
+    :resizable => CPResizableWindowMask,
+    :textured => CPTexturedBackgroundWindowMask,
+    :bridge => CPBorderlessBridgeWindowMask,
+    :hud => CPHUDBackgroundWindowMask
   }
   
   def init_with_options(options, &block)
-    initWithTitle options.delete(:title)
+    style_options = options.delete(:style)
+    style_constants = self.class.constant_name(:style)
+    # puts style_options.name
+    if style_options.is_a? Array
+      style = 0
+      style_options.each { |s| style = style | style_constants[s] }
+    else
+      style = style_constants[style_options]
+    end
+    
+    frame = options.delete(:frame).to_rect
+    
+    initWithContentRect frame, styleMask:style
+    
     yield self if block_given?
+    
+    # for now, just assume title: we shuld really go through all remaining
+    # options
+    self.title = options.delete(:title)
+    orderFront self
     self
   end
   
-  def submenu(sym, options, &block)
-    item = addItemWithTitle sym.to_s.titleize, action:nil, keyEquivalent:""
-    submenu = CPMenu.alloc.initWithTitle ""
-    yield submenu if block_given?
-    setSubmenu submenu, forItem:item
-    submenu
-  end
-  
-  def item(sym, options)
-    options = {} unless options
-    key = options.delete :key
-    action = options.delete(:action) || sym
-    action = "on_#{action.to_s}"
-    item = addItemWithTitle sym.to_s.titleize, action:action, keyEquivalent:key
-    item
-  end
-  
-  def separator
-    addItem CPMenuItem.separatorItem
+  def <<(view)
+    contentView.addSubview view
   end
   
 end

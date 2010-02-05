@@ -82,10 +82,13 @@ cr_a = function cr_defineclass(base, super_class, name, body, flag) {
       break;
     // case 2 - define module
     case 2:
-      throw "m"
+      klass = rb_define_module(name);
+      body(klass);
+      break;
     default:
       throw "unknwon defineclass type"
   }
+  return klass;
 };
 
 /**

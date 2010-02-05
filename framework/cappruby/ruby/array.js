@@ -91,6 +91,7 @@ function rb_ary_last(ary, sel) {
 
 function Init_Array() {
   rb_cArray = objj_getClass("CPArray");
+  rb_const_set(rb_cObject, "Array", rb_cArray);
   // rb_include_module(rb_cArray, rb_mEnumerable);
   
   // rb_define_singleton_method(rb_cArray, "[]", rb_ary_s_create, -1);

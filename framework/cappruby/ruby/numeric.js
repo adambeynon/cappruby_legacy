@@ -26,6 +26,10 @@
 
 rb_cNumeric = nil;
 
+function rb_num_to_s(num, sel) {
+  return new String(num);
+};
+
 function rb_num_uplus(num, sel) {
   return num;
 };
@@ -151,7 +155,7 @@ function Init_Numeric() {
   // rb_define_method(rb_cNumeric, "chr", rb_num_chr, -1);
   // rb_define_method(rb_cNumeric, "ord", rb_num_ord, 0);
   // rb_define_method(rb_cNumeric, "to_i", rb_num_to_i, 0);
-  // rb_define_method(rb_cNumeric, "to_s", rb_num_to_s, -1);
+  rb_define_method(rb_cNumeric, "to_s", rb_num_to_s, -1);
   // rb_define_method(rb_cNumeric, "to_f", rb_num_to_f, 0);
 
   rb_define_method(rb_cNumeric, "+", rb_num_plus, 1);

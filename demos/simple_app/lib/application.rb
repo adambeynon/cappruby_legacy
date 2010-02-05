@@ -69,7 +69,7 @@ class AppController
   
   # return or build the main window
   def main_window
-    @main_window ||= window :title => "Main Window", :style => :bridge do |win|
+    @main_window ||= window :title => "Main Window" do |win|
       # A button example - using origin will trigger sizeToFit:
       button :title => "First Button", :frame => [100,100,80,24] do |btn|
         btn.on_action { puts "Wow, button was clicked" }

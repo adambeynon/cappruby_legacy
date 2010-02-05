@@ -1,5 +1,5 @@
 # 
-# menu.rb
+# array.rb
 # cappruby
 # 
 # Created by Adam Beynon.
@@ -24,37 +24,18 @@
 # THE SOFTWARE.
 #
 
-class CPMenu
+class Array
   
-  defaults :menu, {
-    :title => ""
-  }
-  
-  def init_with_options(options, &block)
-    initWithTitle options.delete(:title)
-    yield self if block_given?
-    self
+  def to_rect
+    CGRectMake(self[0], self[1], self[2], self[3])
   end
   
-  def submenu(sym, options, &block)
-    item = addItemWithTitle sym.to_s.titleize, action:nil, keyEquivalent:""
-    submenu = CPMenu.alloc.initWithTitle ""
-    yield submenu if block_given?
-    setSubmenu submenu, forItem:item
-    submenu
+  def to_point
+    CGPointMake(self[0], self[1])
   end
   
-  def item(sym, options)
-    options = {} unless options
-    key = options.delete :key
-    action = options.delete(:action) || sym
-    action = "on_#{action.to_s}"
-    item = addItemWithTitle sym.to_s.titleize, action:action, keyEquivalent:key
-    item
-  end
-  
-  def separator
-    addItem CPMenuItem.separatorItem
+  def to_size
+    CGSizeMake(self[0], self[1])
   end
   
 end

@@ -46,41 +46,6 @@ function cr_size_new(w, h) {
   return r;
 };
 
-/**
-  Array#to_rect
-  
-  Takes an array, of length 4, and returns a CPRect.
-  
-  [a, b, c, d].to_rect
-  => { origin: { x: a, y: b }, size: { width: c, height: d } }
-*/
-function cr_array_to_rect(ary, sel) {
-  return cr_rect_new(ary[0], ary[1], ary[2], ary[3]);
-};
-
-/**
-  Array#to_point
-  
-  Takes an array, of length 2, and returns a CPPoint.
-  
-  [a, b].to_point
-  => { x: a, y: b }
-*/
-function cr_array_to_point(ary, sel) {
-  return cr_point_new(ary[0], ary[1]);
-};
-
-/**
-  Array#to_point
-  
-  Takes an array, of length 2, and returns a CPSize.
-  
-  [a, b].to_size
-  => { width: a, height: b }
-*/
-function cr_array_to_size(ary, sel) {
-  return cr_size_new(ary[0], ary[1]);
-};
 
 function Init_Mappings_Geometry() {
   
@@ -100,7 +65,7 @@ function Init_Mappings_Geometry() {
     return cr_size_new(w, h);
   }, 2);
   
-  rb_define_method(rb_cArray, "to_rect", cr_array_to_rect, 0);
-  rb_define_method(rb_cArray, "to_point", cr_array_to_point, 0);
-  rb_define_method(rb_cArray, "to_size", cr_array_to_size, 0);
+  // rb_define_method(rb_cArray, "to_rect", cr_array_to_rect, 0);
+  // rb_define_method(rb_cArray, "to_point", cr_array_to_point, 0);
+  // rb_define_method(rb_cArray, "to_size", cr_array_to_size, 0);
 };

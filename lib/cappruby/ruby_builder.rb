@@ -570,7 +570,7 @@ module CappRuby
     def gen_call_should_use_colon?(c)
       # basically, if a "special" method using ruby only things, then dont use
       # a colon
-      return false if c[:meth].match(/(\<|\!|\?|\>|\=|\!|\[|\])/)
+      return false if c[:meth].match(/(\<|\!|\?|\>|\=|\!|\[|\]|\|)/)
       
       args_len = 0
       if c[:call_args] and c[:call_args][:args]
@@ -623,7 +623,18 @@ module CappRuby
       elsif str[:value].length == 1
         write %{"#{str[:value][0][:value]}"}
       else
-        write %{""}
+        write "["
+        str[:value].each do |s|
+          write "," unless str[:value].first == s
+          if s.node == :string_content
+            write %{"#{s[:value].gsub(/\"/, '\"')}"}
+          else
+            write %{objj_msgSend(}
+            generate_stmt s[:value][0], :full_stmt => false, :last_stmt => false
+            write %{,"to_s")}
+          end
+        end
+        write "].join('')"
       end
       write ";" if context[:full_stmt]
     end
@@ -946,8 +957,34 @@ module CappRuby
       write ";" if context[:full_stmt]
     end
     
-    def generate_module stmt, context
+    def generate_module cls, context
+      write "return " if context[:last_stmt] and context[:full_stmt]
       
+      current_iseq = @iseq_current
+      class_iseq = iseq_stack_push ISEQ_TYPE_CLASS
+      class_iseq.parent_iseq = current_iseq
+      
+      # do each body stmt, but for now, assume nonoe
+      cls.bodystmt.each do |b|
+        generate_stmt b, :full_stmt => true, :last_stmt => b == cls.bodystmt.last
+      end
+      
+      if cls.bodystmt.length == 0
+        write "return nil;"
+      end
+      
+      iseq_stack_pop
+      # puts [:expr]
+      write %{cr_defineclass(nil,}
+      # superclass - always nil for module
+      # if cls.super_klass
+        # generate_stmt cls.super_klass[:expr], :full_stmt => false
+      # else
+        write "nil"
+      # end
+      write %{,"#{cls.klass_name}",#{class_iseq},2)}
+      
+      write ";" if context[:full_stmt]
     end
     
     def generate_nil stmt, context
