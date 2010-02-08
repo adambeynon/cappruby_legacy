@@ -64,9 +64,9 @@ function cr_rect_height(r, sel) {
 
 function Init_Mappings_Geometry() {
   
-  cr_cRect = rb_define_class("CPRect", rb_cBasicObject);
-  cr_cPoint = rb_define_class("CPPoint", rb_cBasicObject);
-  cr_cSize = rb_define_class("CPSize", rb_cBasicObject);
+  cr_cRect = rb_define_class("CPRect", rb_cObject);
+  cr_cPoint = rb_define_class("CPPoint", rb_cObject);
+  cr_cSize = rb_define_class("CPSize", rb_cObject);
   
   rb_define_singleton_method(cr_cRect, "new", function(cls, sel, x, y, w, h) {
     return cr_rect_new(x, y, w, h);

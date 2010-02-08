@@ -236,7 +236,7 @@ module CappRuby
       
       iseq_stack_pop
       # puts [:expr]
-      write %{cr_defineclass(nil,}
+      write %{cr_defineclass(_a,}
       # superclass
       if cls.super_klass
         generate_stmt cls.super_klass[:expr], :full_stmt => false
@@ -975,7 +975,7 @@ module CappRuby
       
       iseq_stack_pop
       # puts [:expr]
-      write %{cr_defineclass(nil,}
+      write %{cr_defineclass(_a,}
       # superclass - always nil for module
       # if cls.super_klass
         # generate_stmt cls.super_klass[:expr], :full_stmt => false
@@ -1033,6 +1033,16 @@ module CappRuby
         write "true"
       end
       write ")"
+      write ";" if context[:full_stmt]
+    end
+    
+    def generate_colon2 stmt, context
+      write "return " if context[:full_stmt] and context[:last_stmt]
+      write "cr_getconstant("
+      generate_stmt stmt[:lhs], :full_stmt => false, :last_stmt => false
+      write ",\""
+      write stmt[:rhs]
+      write "\")"
       write ";" if context[:full_stmt]
     end
     

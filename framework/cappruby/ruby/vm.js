@@ -73,16 +73,22 @@ function Init_VM() {
 */
 cr_a = function cr_defineclass(base, super_class, name, body, flag) {
   var klass;
+  
+  // cheap hack.. it isnt a class, its an object (i.e. top self)
+  if (!base.info) {
+    base = rb_class_real(base.isa);
+  }
+  
   switch (flag) {
     // case 0 - define normal class
     case 0:
       if (super_class == nil) super_class = CPObject;
-      klass = rb_define_class(name, super_class);
+      klass = rb_define_class_under(base, name, super_class);
       body(klass);
       break;
     // case 2 - define module
     case 2:
-      klass = rb_define_module(name);
+      klass = rb_define_module_under(base, name);
       body(klass);
       break;
     default:

@@ -31,7 +31,7 @@ module CappRuby
   def self.version
     VERSION
   end
-  
+    
 end
 
 # Require all other files.

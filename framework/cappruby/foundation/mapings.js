@@ -43,7 +43,7 @@ function cr_mappings_s_defaults(cls, sel, name, default_options) {
     return obj;
   };
   
-  rb_define_method(rb_mKernel, name.ptr + ":", f, 1);
+  rb_define_method(CappRuby, name.ptr + ":", f, 1);
   
   return cls;
 };

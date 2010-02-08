@@ -24,23 +24,20 @@
 # THE SOFTWARE.
 #
 
-# App MUST include cappruby
 require 'cappruby'
 
 include CappRuby
 
 class AppController
-  
-  def initialize
-    super
-  end
-  
+    
   def applicationWillFinishLaunching(notification)
     main_window
     CPApp.mainMenu = application_menu
     CPMenu.menuBarVisible = true    
     
-    panel = CRHUDPanel.alloc.initWithContentRect CPRectMake(300,200,400,200), styleMask:1
+    panel = CappRuby::HUDPanel.alloc.initWithContentRect CPRectMake(300,200,400,200), styleMask:1
+    
+    # panel = CappRuby::HUDPanel.alloc.initWithContentRect CPRectMake(300,200,400,200), styleMask:1
     panel.movableByWindowBackground = true
     panel.orderFront self
   end

@@ -25,10 +25,14 @@
  */
 
 function rb_define_class(id, super_class) {
+  return rb_define_class_under(rb_cObject, id, super_class);
+};
+
+function rb_define_class_under(outer, id, super_class) {
   var klass;
   
-  if (rb_const_defined(rb_cObject, id)) {
-    klass = rb_const_get(rb_cObject, id);
+  if (rb_const_defined(outer, id)) {
+    klass = rb_const_get(outer, id);
     if ((super_class !== CPObject) && (klass.super_class !== super_class)) {
       throw id + " already exists: different super value given"
     }
@@ -41,13 +45,22 @@ function rb_define_class(id, super_class) {
   }
   klass = objj_allocateClassPair(super_class, id);
   // ivars? hmmm, probably dont need to.
-  objj_registerClassPair(klass);
+  if (outer === rb_cObject) {
+    objj_registerClassPair(klass);
+  }
+  else {
+    klass.rb_parent = outer;
+  }
+  klass.info |= CLS_INITIALIZED;
+  klass.isa.info |= CLS_INITIALIZED;
+  // console.log(id);
+  // _class_initialize(klass);
   // heh?
   objj_addClassForBundle(klass, objj_getBundleWithPath(OBJJ_CURRENT_BUNDLE.path));
   // do we need a class table? maybe not..
-  rb_const_set(rb_cObject, id, klass);
+  rb_const_set(outer, id, klass);
   return klass;
-};
+}
 
 function rb_define_method(klass, id, func, arity) {
   var m = new cappruby_method_t(id, func, []);
@@ -91,6 +104,11 @@ function rb_singleton_class(klass) {
     // meta class, so its already a singleton
     return klass.isa;
   }
+};
+
+function rb_class_real(klass) {
+  while (klass.info & CLS_SINGLETON) klass = klass.super_class;
+  return klass;
 };
 
 function boot_defclass(id, superclass) {

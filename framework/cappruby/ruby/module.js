@@ -35,14 +35,18 @@ function rb_define_module_id(id) {
 };
 
 function rb_define_module(id) {
+  return rb_define_module_under(rb_cObject, id);
+};
+
+function rb_define_module_under(outer, id) {
   var m;
-  if (rb_const_defined(rb_cObject, id)) {
-    m = rb_const_get(rb_cObject, id);
+  if (rb_const_defined(outer, id)) {
+    m = rb_const_get(outer, id);
     // check tyoe
     return m;
   }
   m = rb_define_module_id(id);
-  rb_const_set(rb_cObject, id, m);
+  rb_const_set(outer, id, m);
   return m;
 };
 

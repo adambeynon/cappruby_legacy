@@ -46,10 +46,15 @@ function rb_const_defined(klass, id) {
   return false;
 };
 
-function rb_const_get(klass, id) {
+function rb_const_get(k, id) {
+  var klass = k;
   while (klass) {
     if (klass[id] !== undefined) return klass[id];
     klass = klass.super_class;
+  }
+  // try parent
+  if (k.rb_parent && k.rb_parent[id]) {
+    return k.rb_parent[id];
   }
   // try window scope..
   if (window[id] !== undefined) {
@@ -57,5 +62,6 @@ function rb_const_get(klass, id) {
     rb_const_set(rb_cObject, id, window[id]);
     return window[id];
   }
+  console.log(k);
   throw "cannot find constant " + id;
 };
