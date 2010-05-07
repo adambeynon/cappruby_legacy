@@ -1,24 +1,7 @@
-#!/usr/bin/env ruby -wKU
+#!/usr/bin/env narwhal
 
-require File.expand_path(
-  File.join(File.dirname(__FILE__), %w[.. lib cappruby]))
-  
-CappRuby.tools ARGV
+var File = require('file');
+var OS = require('os');
+var libPath = File.join(File.dirname(module.path), '../lib');
 
-
-# require 'fileutils'
-# 
-# OUTPUT_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..', 'build'))
-# FRAMEWORK_NAME = "CappRuby"
-# DOTJ_PATH = File.join(OUTPUT_DIR, FRAMEWORK_NAME, FRAMEWORK_NAME) + '.j'
-# PLIST_PATH = File.join(OUTPUT_DIR, FRAMEWORK_NAME) + 'Info.plist'
-# 
-# JS_SOURCES = File.join(File.dirname(__FILE__), '..', 'runtime', '**', '*.js')
-# 
-# FileUtils.mkdir_p(File.join(OUTPUT_DIR, FRAMEWORK_NAME))
-# 
-# File.open(DOTJ_PATH, 'wb') do |j|
-#   Dir.glob(JS_SOURCES).each do |src|
-#     j.write src
-#   end
-# end
+require('../lib/command');

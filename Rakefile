@@ -1,53 +1,6 @@
-require 'rubygems'
-require 'rake'
-
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gem|
-    gem.name = "cappruby"
-    gem.summary = %q{cappruby}
-    gem.description = %q{cappruby}
-    gem.email = "adam@adambeynon.com"
-    gem.homepage = "http://github.com/adambeynon/cappruby"
-    gem.authors = ["Adam Beynon"]
-    gem.add_dependency "vienna", ">= 0.0.5"
-    gem.add_development_dependency "racc", ">= 1.4.6"
+desc "Rebuild parser"
+task :parser do
+  Dir.chdir(File.join(Dir.getwd, 'lib')) do |lib|
+    puts `narwhal ../../jison/bin/jison cappruby_parser.jison`
   end
-  Jeweler::GemcutterTasks.new
-rescue LoadError
-  puts "Jeweler (or a dependency) not available. Install it with: gem install jeweler"
-end
-
-require 'rake/testtask'
-Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
-end
-
-begin
-  require 'rcov/rcovtask'
-  Rcov::RcovTask.new do |test|
-    test.libs << 'test'
-    test.pattern = 'test/**/test_*.rb'
-    test.verbose = true
-  end
-rescue LoadError
-  task :rcov do
-    abort "RCov is not available. In order to run rcov, you must: sudo gem install spicycode-rcov"
-  end
-end
-
-task :test => :check_dependencies
-
-task :default => :test
-
-require 'rake/rdoctask'
-Rake::RDocTask.new do |rdoc|
-  version = File.exist?('VERSION') ? File.read('VERSION') : ""
-
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "cappruby #{version}"
-  rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('lib/**/*.rb')
 end
