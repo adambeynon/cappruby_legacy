@@ -18,7 +18,7 @@ cappruby_next = function() {
 }
 
 cappruby_yield = function(block) {
-  console.log("yielding: " + Array.prototype.slice.call(arguments, 1).join(''));
+  // console.log("yielding: " + Array.prototype.slice.call(arguments, 1).join(''));
   if (!block) throw "cappruby_yield: no block given"
   
   switch (arguments.length) {

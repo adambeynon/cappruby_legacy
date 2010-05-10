@@ -36,8 +36,9 @@ class AppController
   
 end
 
-
-puts "about to call array.each"
 [1, 2, 3, 4].each do |arg|
+  if arg > 2
+    break
+  end
   puts arg
 end

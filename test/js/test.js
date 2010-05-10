@@ -26,10 +26,12 @@ args = Array.prototype.slice.call(arguments, 2);
 return cappruby_define_method(self, "none", function(self, _cmd) {
 });
 }, 0);
-objj_msgSend(self, "puts:", "about to call array.each");
 return objj_msgSend([1, 2, 3, 4], "each", function(_self, __cmd, arg) {
 with ({ self: (_self == nil ? self : _self), _cmd: (__cmd == nil ? _cmd : __cmd) }) {
-return objj_msgSend(self, "puts:", objj_msgSend(self, "arg"));
+if (objj_msgSend(arg, ">:", 2)){
+cappruby_break();
+}
+return objj_msgSend(self, "puts:", arg);
 }
 });
 })();

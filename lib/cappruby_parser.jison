@@ -128,6 +128,50 @@ S
                   {{
                     $$ = new CappRuby.CallNode($2, '+@', []);
                   }}
+                | arg '>' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '>', [[$3]]);
+                  }}
+                | arg '<' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '<', [[$3]]);
+                    }}
+                | arg '<=' arg
+                  {{  
+                    $$ = new CappRuby.CallNode($1, '<=', [[$3]]);
+                  }}
+                | arg '>=' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '>=', [[$3]]);
+                  }}
+                | arg '>>' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '>>', [[$3]]);
+                  }}
+                | arg '<<' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '<<', [[$3]]);
+                  }}
+                | arg '!~' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '!~', [[$3]]);
+                  }}
+                | arg '=~' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '=~', [[$3]]);
+                  }}
+                | arg '==' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '==', [[$3]]);
+                  }}
+                | arg '===' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '===', [[$3]]);
+                  }}
+                | arg '?' arg ':' arg
+                  {{
+                    $$ = new CappRuby.TernaryNode($1, $3, $5);
+                  }}
                 | primary
                 ;
             
@@ -257,6 +301,10 @@ xstring_contents: none
                   {{
                     $$ = { type:'yield' };
                   }}
+                | BREAK
+                  {{
+                    $$ = new CappRuby.BreakNode();
+                  }}
                 ;
                 
        aref_args: none
@@ -271,7 +319,7 @@ xstring_contents: none
                 | tCOLON2
                 ;
         
-       f_arglist: '(' f_args ')'
+       f_arglist: 'PAREN_BEGIN' f_args 'CALL_END'
                   {{ $$ = $2; }}
                 | f_args term
                   {{ $$ = $1; }}
@@ -393,8 +441,8 @@ f_block_arg_name: IDENTIFIER
                 ;
           
             then: term
-                | kTHEN
-                | term kTHEN
+                | THEN
+                | term THEN
                 ;
             
             args: arg {{ $$ = [$1]; }}
@@ -411,6 +459,10 @@ f_block_arg_name: IDENTIFIER
                 | YIELD call_args
                   {{
                     $$ = new CappRuby.YieldNode($2);
+                  }}
+                | BREAK call_args
+                  {{
+                    $$ = new CappRuby.BreakNode($2);
                   }}
                 ;
       
@@ -582,6 +634,39 @@ f_block_arg_name: IDENTIFIER
             
            fname: IDENTIFIER { $$ = yytext; }
                 | CONSTANT { $$ = yytext }
+                | op
+                ;
+            
+              op: '|'      {{ $$ = yytext; }}
+                | '^'      {{ $$ = yytext; }}
+                | '&'      {{ $$ = yytext; }}
+                | '=='      {{ $$ = yytext; }}
+                | '==='      {{ $$ = yytext; }}
+                | '=~'      {{ $$ = yytext; }}
+                | '!~'      {{ $$ = yytext; }}
+                | '>'      {{ $$ = yytext; }}
+                | '<'      {{ $$ = yytext; }}
+                | '>='      {{ $$ = yytext; }}
+                | '<='      {{ $$ = yytext; }}
+                | '!='      {{ $$ = yytext; }}
+                | '<<'      {{ $$ = yytext; }}
+                | '>>'      {{ $$ = yytext; }}
+                | 'UPLUS'      {{ $$ = yytext; }}
+                | 'UMINUS'      {{ $$ = yytext; }}
+                | '+'      {{ $$ = yytext; }}
+                | '-'      {{ $$ = yytext; }}
+                | '*'      {{ $$ = yytext; }}
+                | '/'      {{ $$ = yytext; }}
+                | '%'      {{ $$ = yytext; }}
+                | STAR      {{ $$ = yytext; }}
+                | '**'      {{ $$ = yytext; }}
+                | '!'      {{ $$ = yytext; }}
+                | '~'      {{ $$ = yytext; }}
+                | '+@'      {{ $$ = yytext; }}
+                | '-@'      {{ $$ = yytext; }}
+                | '[]'      {{ $$ = yytext; }}
+                | '[]='      {{ $$ = yytext; }}
+                | '<=>'     {{ $$ = yytext; }}
                 ;
         
          numeric: INTEGER {{ $$ = new CappRuby.NumericNode(yytext); }}

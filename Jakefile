@@ -30,7 +30,7 @@ Jake.task('self_contained', function() {
   // javascript 'cappruby' sources
   var inputs = ['module', 'control', 'boot', 'vm'];
   inputs.forEach(function(file) {
-    str += File.read(File.absolute('framework/cappruby/' + file + '.js'));
+    str += File.read(File.absolute('framework/runtime/' + file + '.js'));
   });
   // core library sources
   File.list(File.absolute('framework/core')).forEach(function(file) {
