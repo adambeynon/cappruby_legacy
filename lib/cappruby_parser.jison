@@ -92,9 +92,9 @@ S
                 | arg
                 ;
             
-             arg: variable '=' arg
+             arg: variable '=' expr
                   {{
-                    $$ = { type:'assign', lhs:$1, rhs:$3 };
+                    $$ = new CappRuby.AssignNode($1, $3);
                   }}
                 | arg tDOT2 arg
                   {{
@@ -106,7 +106,7 @@ S
                   }}
                 | arg '+' arg
                   {{
-                    $$ = { type:'opt_plus', lhs:$1, rhs:$3 };
+                    $$ = new CappRuby.CallNode($1, '+', [[$3]]);
                   }}
                 | arg '-' arg
                   {{
@@ -120,6 +120,14 @@ S
                   {{
                     $$ = { type:'opt_div', lhs:$1, rhs:$3 };
                   }}
+                | UMINUS arg
+                  {{
+                    $$ = new CappRuby.CallNode($2, '-@', []);
+                  }}
+                | UPLUS arg
+                  {{
+                    $$ = new CappRuby.CallNode($2, '+@', []);
+                  }}
                 | primary
                 ;
             
@@ -130,9 +138,9 @@ S
          backref: tNTH_REF
                 ;
                 
-          string: tSTRING_BEG string_contents tSTRING_END
+          string: STRING_BEGIN string_contents STRING_END
                   {{
-                    $$ = { type:'string', value:$2 }
+                    $$ = new CappRuby.StringNode($2);
                   }}
                 ;
     
@@ -146,19 +154,19 @@ S
                   }}
                 ;
   
-  string_content: tSTRING_CONTENT
+  string_content: STRING_CONTENT
                   {{
-                    $$ = { type:'string_content', value:yytext };
+                    $$ = ['string_content', yytext];
                   }}
-                | tSTRING_DBEG compstmt '}'
+                | STRING_DBEG compstmt '}'
                   {{
-                    $$ = { type:'string_dbeg', value:$2 };
+                    $$ = ['string_dbeg', $2];
                   }}
                 ;
           
-         xstring: tXSTRING_BEG xstring_contents tXSTRING_END
+         xstring: XSTRING_BEGIN xstring_contents XSTRING_END
                   {{
-                    $$ = { type:'xstring', value:$2 };
+                    $$ = new CappRuby.XStringNode($2);
                   }}
                 ;
       
@@ -177,15 +185,22 @@ xstring_contents: none
                     $$ = { type:'regexp', value:$2 };
                   }}
                 ;
-            
+      
+      Identifier: IDENTIFIER      {{ $$ = yytext; }}
+                ;
+                
          primary: COMMENT     {{ $$ = new CappRuby.CommentNode(yytext); }}
                 | literal
                 | string
                 | xstring
                 | regexp
                 | variable
+                | IDENTIFIER do_block
+                  {{
+                    $$ = new CappRuby.CallNode(null, $1, [null, null, $2]);
+                  }}
                 | method_call
-                | method_call brace_block
+                | method_call brace_block {{ $$ = $1; $1.set_block($2); }}
                 | primary tCOLON2 oper_constant
                   {{
                     $$ = { type:'colon2', lhs:$1, rhs:$3 };
@@ -194,9 +209,9 @@ xstring_contents: none
                   {{
                     $$ = { type:'colon3', name:$2 };
                   }}
-                | kIF expr then compstmt if_tail kEND
+                | IF expr then compstmt if_tail END
                   {{
-                    $$ = { type:'if', expr:$2, stmt:$4, tail:$5 };
+                    $$ = new CappRuby.IfNode($2, $4, $5);
                   }}
                 | kCASE expr opt_terms case_body kEND
                   {{
@@ -206,9 +221,13 @@ xstring_contents: none
                   {{
                     $$ = { type:'case', expr:null, body:$3 };
                   }}
-                | kCLASS cpath superclass bodystmt kEND
+                | CLASS cpath superclass bodystmt END
                   {{
-                    $$ = { type:'class', cpath:$2, superclass:$3, bodystmt:$4 };
+                    $$ = new CappRuby.ClassNode($2, $3, $4);
+                  }}
+                | CLASS '<<' expr term bodystmt END
+                  {{
+                    $$ = new CappRuby.ClassShiftNode($3, $5);
                   }}
                 | kMODULE cpath bodystmt kEND
                   {{
@@ -220,21 +239,21 @@ xstring_contents: none
                   }}
                 | DEF singleton dot_or_colon fname f_arglist bodystmt END
                   {{
-                    $$ = { type:'def', singleton:$2, fname:$4, arglist:$5, bodystmt:$6};
+                    $$ = new CappRuby.DefNode($4, $2, $5, $6);
                   }}
                 | ARRAY_BEGIN aref_args ARRAY_END
                   {{
                     $$ = new CappRuby.ArrayNode($2);
                   }}
-                | kYIELD '(' call_args ')'
+                | YIELD '(' call_args ')'
                   {{
                     $$ = { type:'yield', call_args:$3 };
                   }}
-                | kYIELD '(' ')'
+                | YIELD '(' ')'
                   {{
                     $$ = { type:'yield' };
                   }}
-                | kYIELD
+                | YIELD
                   {{
                     $$ = { type:'yield' };
                   }}
@@ -253,30 +272,63 @@ xstring_contents: none
                 ;
         
        f_arglist: '(' f_args ')'
+                  {{ $$ = $2; }}
                 | f_args term
+                  {{ $$ = $1; }}
                 ;
           
           f_args: f_arg ',' f_optarg ',' f_rest_arg opt_f_block_arg
+                  {{ $$ = [$1, $3, $5, [], $6]; }}
                 | f_arg ',' f_optarg ',' f_rest_arg ',' f_arg opt_f_block_arg
+                  {{ $$ = [$1, $3, $5, $7, $8]; }}
               	| f_arg ',' f_optarg opt_f_block_arg
+              	  {{ $$ = [$1, $3, $5, [], $6]; }}
             		| f_arg ',' f_optarg ',' f_arg opt_f_block_arg
+            		  {{ $$ = [$1, $3, $5, [], $6]; }}
             		| f_arg ',' f_rest_arg opt_f_block_arg
+            		  {{ $$ = [$1, $3, $5, [], $6]; }}
              		| f_arg ',' f_rest_arg ',' f_arg opt_f_block_arg
+             		  {{ $$ = [$1, $3, $5, [], $6]; }}
              		| f_arg opt_f_block_arg
+             		  {{ $$ = [$1, $3, $5, [], $6]; }}
             		| f_optarg ',' f_rest_arg opt_f_block_arg
+            		  {{ $$ = [$1, $3, $5, [], $6]; }}
             		| f_optarg ',' f_rest_arg ',' f_arg opt_f_block_arg
+            		  {{ $$ = [$1, $3, $5, [], $6]; }}
              		| f_optarg opt_f_block_arg
+             		  {{ $$ = [$1, $3, $5, [], $6]; }}
             		| f_optarg ',' f_arg opt_f_block_arg
+            		  {{ $$ = [$1, $3, $5, [], $6]; }}
               	| f_rest_arg opt_f_block_arg
+              	  {{ $$ = [[], [], $1, [], $6]; }}
             		| f_rest_arg ',' f_arg opt_f_block_arg
+            		  {{ $$ = [$1, $3, $5, [], $6]; }}
             		| f_block_arg
+            		  {{ $$ = [[], [], [], [], $1]; }}
               	| none
+              	  {{ $$ = [[], [], [], []]; }}
                 ;
                 
            f_arg: f_arg_item
+                  {{ $$ = [$1]; }}
                 | f_arg ',' f_arg_item
+                  {{ $$ = $1.concat([$3]); }}
                 ;
-    
+        
+        f_optarg: none
+                  {{ $$ = []; }}
+                ;
+                
+      f_rest_arg: restarg_mark Identifier
+                  {{
+                    $$ = [$2];
+                  }}
+                ;
+  
+    restarg_mark: STAR
+                | '*'
+                ;
+                
  opt_f_block_arg: none
                 | ',' f_block_arg
                 ;
@@ -293,19 +345,33 @@ f_block_arg_name: IDENTIFIER
     
                 
       f_arg_item: IDENTIFIER
+                  {{ $$ = yytext; }}
                 ;
                 
-     brace_block: '{' opt_block_param compstmt '}'
-                | kDO opt_block_param compstmt kEND
+     brace_block: '{' opt_block_param bodystmt '}'
+                  {{
+                    $$ = new CappRuby.BlockNode($2, $3);
+                  }}
+                | DO opt_block_param bodystmt END
+                  {{
+                    $$ = new CappRuby.BlockNode($2, $3);
+                  }}
                 ;
     
- opt_block_param: none
+ opt_block_param: none        {{ $$ = [[],[],[],[]]; }}
+                | block_param_def
+                ;
+    
+ block_param_def: '|' block_param '|' {{ $$ = $2; }}
+                ;
+  
+     block_param: f_args
                 ;
             
-         if_tail: opt_else {{ $$ = $1; }}
-                | kELSIF expr then compstmt if_tail
+         if_tail: opt_else
+                | ELSIF expr then compstmt if_tail
                   {{
-                    $$ = [{ type:'elsif', expr:$2, stmt:$4 }]; $$.push($5);
+                    $$ = [['elsif', $2, $4]].concat($5);
                   }}
                 ;
         
@@ -313,9 +379,9 @@ f_block_arg_name: IDENTIFIER
                   {{
                     $$ = [];
                   }}
-                | kELSE compstmt
+                | ELSE compstmt
                   {{
-                    $$ = { type:'else', stmt:$2 };
+                    $$ = [['else', null, $2]];
                   }}
                 ;
        
@@ -342,37 +408,40 @@ f_block_arg_name: IDENTIFIER
       
     command_call: command
                 | block_command
-                | kYIELD call_args
+                | YIELD call_args
                   {{
-                    $$ = { type:'yield' };
+                    $$ = new CappRuby.YieldNode($2);
                   }}
                 ;
       
          command: primary call_args
                   {{
-                    $$ = { type:'call', recv:nil, meth:$1, call_args:$2};
+                    $$ = new CappRuby.CallNode(null, $1._value, $2);
                   }}
                 | primary '.' operation2 call_args
+                  {{
+                    $$ = new CappRuby.CallNode($1, $3, $4);
+                  }}
                 | primary '.' operation2 call_args cmd_brace_block
                 | primary tCOLON2 operation2 call_args
                 | primary tCOLON2 operation2 call_args cmd_brace_block
                 | kSUPER call_args
-                | kYIELD call_args
+                | YIELD call_args
                 ;
       
    block_command: block_call
                 ;
     
       block_call: command do_block
-                ;
-                
-        do_block: kDO opt_block_param compstmt kEND
-                  {{ 
-                    $$ = 101010102341;
+                  {{
+                    $$ = $1; $1.set_block($2);
                   }}
                 ;
-    
- opt_block_param: none
+                
+        do_block: DO opt_block_param bodystmt END
+                  {{ 
+                    $$ = new CappRuby.BlockNode($2, $3);
+                  }}
                 ;
     
  cmd_brace_block: '{' '}'
@@ -381,23 +450,31 @@ f_block_arg_name: IDENTIFIER
      method_call: operation paren_args
                 | primary '.' operation2 opt_paren_args
                   {{ 
-                    $$ = { type:'call', recv:$1, meth:$3 }
+                    $$ = new CappRuby.CallNode($1, $3, $4);
+                  }}
+                | primary 'INDEX_BEGIN' opt_call_args 'ARRAY_END'
+                  {{
+                    $$ = new CappRuby.CallNode($1, '[]', $3);
+                  }}
+                | primary 'INDEX_BEGIN' opt_call_args 'ARRAY_END' '=' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '[]=', $3[0].concat([$6]));
                   }}
                 ;
        
        operation: IDENTIFIER
                   {{
-                    $$ = { type:'identifier', name:yytext };
+                    $$ = yytext;
                   }}
                 | tCONSTANT
                   {{
-                    $$ = { type:'constant', name:yytext };
+                    $$ = yytext;
                   }}
                 ;
    
       operation2: IDENTIFIER 
                   {{ 
-                    $$ = { type:'identifier', name:yytext };
+                    $$ = yytext;
                   }}
                 ;
     
@@ -417,41 +494,59 @@ f_block_arg_name: IDENTIFIER
       
        call_args: command
                   {{
-                    $$ = { type:'call_args', args:[$1] };
+                    $$ = [[$1], null, null];
                   }}
                 | args opt_block_arg
                   {{
-                    $$ = { type:'call_args', args:$1, block_arg:$2 };
+                    $$ = [$1, null, $2];
                   }}
                 | assocs opt_block_arg
                   {{
-                    $$ = { type:'call_args', assocs:$1, block_arg:$2 };
+                    $$ = [null, $1, $2];
                   }}
                 | args ',' assocs opt_block_arg
                   {{
-                    $$ = { type:'call_args', args:$1, assocs:$3, block_arg:$4 };
+                    $$ = [$1, $3, $4];
                   }}
                 | block_arg
                   {{
-                    $$ = { type:'call_args', block_arg:$1 };
+                    $$ = [null, null, $1];
                   }}
                 ;
       
    opt_block_arg: none
                 ;
         
-          assocs: none
+          assocs: label_assocs                    {{ $$ = new CappRuby.LabelAssocs($1); }}
+                | norm_assocs                     {{ $$ = new CappRuby.Assocs($1); }}
+                ;
+          
+     norm_assocs: assoc                           {{ $$ = [$1]; }}
+                | norm_assocs ',' assoc           {{ $$ = $1; $1.push($3); }}
+                ;
+          
+           assoc: arg ASSOC arg                   {{ $$ = [$1, $3]; }}
                 ;
         
-        variable: IDENTIFIER {{ $$ = { type:'identifier', name:yytext }; }}
-                | IVAR {{ $$ = { type:'ivar', name:yytext }; }}
+    label_assocs: label_assoc                     {{ $$ = [$1]; }}
+                | label_assocs ',' label_assoc    {{ $$ = $1; $1.push($3); }}
+                ;
+      
+     label_assoc: label arg                       {{ $$ = [$1, $2]; }}
+                ;
+          
+           label: LABEL                           {{ $$ = yytext; }}
+                ;
+        
+        variable: IDENTIFIER    {{ $$ = new CappRuby.IdentifierNode(yytext); }}
+                | IVAR          {{ $$ = { type:'ivar', name:yytext }; }}
                 | GVAR
-                | CONSTANT {{ $$ = { type:'constant', name:yytext }; }}
+                | CONSTANT      {{ $$ = new CappRuby.ConstantNode(yytext); }}
                 | CVAR
-                | NIL {{ $$ = { type:'nil' }; }}
-                | SELF {{ $$ = { type:'self' }; }}
-                | TRUE {{ $$ = { type:'true' }; }}
-                | FALSE {{ $$ = { type:'false' }; }}
+                | NIL           {{ $$ = new CappRuby.NilNode(); }}
+                | SELF          {{ $$ = new CappRuby.SelfNode(); }}
+                | TRUE          {{ $$ = new CappRuby.TrueNode(); }}
+                | FALSE         {{ $$ = new CappRuby.FalseNode(); }}
                 | __FILE__ {{ $$ = { type:'__FILE__' }; }}
                 | __LINE__
                 | __ENCODING__

@@ -1,15 +1,43 @@
+# 
+#  test.rb
+#  cappruby
+#  
+#  Created by Adam Beynon on 2010-05-09.
+#  Copyright 2010 Adam Beynon. All rights reserved.
+# 
 
-10
-:adam
-[1, 2, 3, 4]
+class AppController
+  
+  # attr_accessor :the_window
+  
+  def applicationDidFinishLaunching aNotification
+    # This is called when the application is done loading
+    `console.log('ohhhhh yeah!');`
+    # main_window
+  end
+  
+  puts "adam"
+  
+  def awakeFromCib
+    # This is called when the cib is done loading
+  end
 
-def adam
-  100
-end
+  def normal adam, ben, john
 
-def ben= some_value
+  end
+
+  def splat *args
+
+  end
+
+  def none
+
+  end
   
 end
 
 
-@first_name
+puts "about to call array.each"
+[1, 2, 3, 4].each do |arg|
+  puts arg
+end
