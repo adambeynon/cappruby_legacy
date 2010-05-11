@@ -19,6 +19,10 @@ var symbol_hash = { };
 
 var CappRubySymbol = function(id) {
   this._sym = id;
+  this.isa = cappruby_cSymbol;
+  this.toString = function() {
+    return ':' + this._sym;
+  };
   return this;
 };
 
@@ -48,9 +52,6 @@ Function.prototype.isa = CPBlock;
 objj_registerClassPair(objj_allocateClassPair(CPObject, 'CPBoolean'));
 Boolean.prototype.isa = CPBoolean;
 
-// Incase objj ever sends messages to nil.. which it should.
-// FIXME: CPNull?????
-objj_registerClassPair(objj_allocateClassPair(CPObject, "CPNil"));
 
 // Initialize objects and hierarchy for cappruby
 function Init_CappRuby() {
@@ -64,6 +65,8 @@ function Init_CappRuby() {
   cappruby_cClass = boot_defclass('Class', cappruby_cModule);
   // cappruby_mKernel = define module...
   
+  cappruby_const_set(cappruby_cObject, 'NilClass', CPNull);
+  
   cappruby_const_set(cappruby_cObject, 'Boolean', CPBoolean);
   
   cappruby_const_set(cappruby_cObject, 'Number', CPNumber);
@@ -71,6 +74,7 @@ function Init_CappRuby() {
   cappruby_cSymbol = cappruby_define_class('Symbol', CPObject);
   
   cappruby_const_set(cappruby_cObject, 'Array', CPArray);
+  cappruby_const_set(cappruby_cObject, 'String', CPString);
 };
 
 

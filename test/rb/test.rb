@@ -12,33 +12,17 @@ class AppController
   
   def applicationDidFinishLaunching aNotification
     # This is called when the application is done loading
-    `console.log('ohhhhh yeah!');`
+    `console.log('ohhhhh yeah! applicationDidFinishLaunching');`
     # main_window
   end
-  
-  puts "adam"
-  
+    
   def awakeFromCib
     # This is called when the cib is done loading
   end
 
-  def normal adam, ben, john
-
-  end
-
-  def splat *args
-
-  end
-
-  def none
-
-  end
-  
 end
 
-[1, 2, 3, 4].each do |arg|
-  if arg > 2
-    break
-  end
-  puts arg
-end
+40 + 40 if adam < 10
+40 - 400 unless adam < 10
+
+# adam.do_something unless adam

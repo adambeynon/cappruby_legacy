@@ -6,6 +6,13 @@
 //  Copyright 2010 Adam Beynon. All rights reserved.
 // 
 
+
+var global;
+
+if (typeof global === 'undefined') {
+  global = window;
+};
+
 // main context object
 cappruby_top_self = nil;
 
@@ -86,6 +93,7 @@ cappruby_class_real = function(klass) {
 };
 
 cappruby_define_method = function(receiver, selector, body) {
+  if (receiver.isa.info & CLS_CLASS) receiver = receiver.isa;
   // console.log("defininf on:");
   // console.log(receiver);
   return class_addMethod(receiver, selector, body, []);
@@ -106,39 +114,61 @@ cappruby_const_defined = function(klass, id) {
   }
   // try window/global scope..
   // FIXME: commonjs needs global..
-  if (window[id] !== undefined) return true;
+  if (global[id] !== undefined) return true;
   return false;
 };
 
 cappruby_const_get = function(klass, id) {
+  var o = klass;
+  if (klass.isa.info & CLS_CLASS) klass = klass.isa;
+
   while (klass) {
     if (klass[id] !== undefined) return klass[id];
     klass = klass.super_class;
   }
   
-  if (window[id] !== undefined) return window[id];
+  if (global[id] !== undefined) {
+    cappruby_cObject[id] = window[id];
+    return global[id];
+  }
+
+  throw "Name Error: Uninitialized constant: " + id + " in " + o;
   return false;
+};
+
+cappruby_function = function(name) {
+  var args = Array.prototype.slice.call(arguments);
+  if (!window[name] || typeof window[name] !== 'function') {
+    throw "cappruby_function: " + name + " is not a valid function."
+  }
+  return window[name].apply(window, args);
 };
 
 Init_CappRuby();
 Init_top_self();
 
 
-// cappruby_msgSend(receiver, selector, block, arg1, arg2.....argN)
-// cappruby_msgSend = function(recv, sel, block) {
-//   
-//   var isa = (recv === nil) ? cappruby_cNilClass : recv.isa;
-//   var imp = isa.method_dtable[sel].method_imp;
-//   
-//   cappruby_block = block;
-//   
-//   switch (arguments.length) {
-//     case 3: return imp(recv, sel);
-//     case 4: return imp(recv, sel, arguments[3]);
-//     case 5: return imp(recv, sel, arguments[3], arguments[4]);
-//     case 6: return imp(recv, sel, arguments[3], arguments[4], arguments[5]);
-//     case 7: return imp(recv, sel, arguments[3], arguments[4], arguments[5], arguments[6]);
-//   }
-//   
-//   throw "cappruby_msgSend: unsupported arg send length: " + (arguments.length - 3)
-// };
+cappruby_msgSend = function(recv, sel) {
+  var imp;
+  
+  if (recv === nil || recv === undefined)
+    imp = CPNull.method_dtable[sel];
+  else
+    imp = recv.isa.method_dtable[sel];
+    
+  if (!imp) {
+    return cappruby_msgSend(recv, 'forward::', sel, Array.prototype.slice.call(arguments, 2));
+  } else {
+    imp = imp.method_imp;
+  }
+  
+  switch (arguments.length) {
+    case 2: return imp(recv, sel);
+    case 3: return imp(recv, sel, arguments[2]);
+    case 4: return imp(recv, sel, arguments[2], arguments[3]);
+    case 5: return imp(recv, sel, arguments[2], arguments[3], arguments[4]);
+    case 6: return imp(recv, sel, arguments[2], arguments[3], arguments[4], arguments[5]);
+  }
+  
+  throw "cappruby_msgSend: unsuported arg send length:" + (arguments.length - 2)
+};

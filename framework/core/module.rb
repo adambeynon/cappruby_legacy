@@ -3,33 +3,15 @@
 # CPObject's meta chain.
 class << CPObject
   
-  # def === other
-  #   
-  # end
-  # 
-  # def == other
-  #   
-  # end
-  # 
-  # def <=> other
-  #   
-  # end
-  # 
-  # def < other
-  #   
-  # end
-  # 
-  # def <= other
-  #   
-  # end
-  # 
-  # def > other
-  #   
-  # end
-  # 
-  # def >= other
-  #   
-  # end
+  # if Klass.new is called with args
+  def new *args
+    `var r = objj_msgSend(#{self}, 'alloc');
+    return objj_msgSend.apply(r, [r, 'init'].concat(#{args}));`
+  end
+  
+  def alias_method new_method, old_method
+    `return cappruby_alias(#{self}, #{new_method}._sym, #{old_method}._sym);`
+  end
   
   def attr attributes
     
@@ -50,10 +32,6 @@ class << CPObject
   def attr_accessor *attributes
     # attr_reader *attributes
     # attr_writer *attributes
-  end
-  
-  def new args
-    
   end
   
 end

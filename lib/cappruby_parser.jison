@@ -77,13 +77,13 @@ S
                 | stmts terms stmt   {{ $$ = $1; $$.push($3); }}
                 ;
                 
-            stmt: stmt kIF_MOD expr
+            stmt: stmt IF_MOD expr
                   {{
-                    $$ = { type:'if_mod', stmt:$1, expr:$3 };
+                    $$ = new CappRuby.IfNode($3, [$1], [], 'if');
                   }}
-                | stmt kUNLESS_MOD expr
+                | stmt UNLESS_MOD expr
                   {{
-                    $$ = { type:'unless_mod', stmt:$1, expr:$3 };
+                    $$ = new CappRuby.IfNode($3, [$1], [], 'unless');
                   }}
                 | expr
                 ;
@@ -110,15 +110,15 @@ S
                   }}
                 | arg '-' arg
                   {{
-                    $$ = { type:'opt_minus', lhs:$1, rhs:$3 };
+                    $$ = new CappRuby.CallNode($1, '-', [[$3]]);
                   }}
                 | arg '*' arg
                   {{
-                    $$ = { type:'opt_mult', lhs:$1, rhs:$3 };
+                    $$ = new CappRuby.CallNode($1, '*', [[$3]]);
                   }}
                 | arg '/' arg
                   {{
-                    $$ = { type:'opt_div', lhs:$1, rhs:$3 };
+                    $$ = new CappRuby.CallNode($1, '/', [[$3]]);
                   }}
                 | UMINUS arg
                   {{
@@ -176,6 +176,7 @@ S
                 ;
             
              lhs: variable
+                // | primary '.' operation
                 | backref
                 ;
           
@@ -243,8 +244,17 @@ xstring_contents: none
                   {{
                     $$ = new CappRuby.CallNode(null, $1, [null, null, $2]);
                   }}
+                | paren_args
+                  {{
+                    // jison cant quite handle full grammar, so cheeky little hack
+                    $$ = new CappRuby.ParenArgsNode($1);
+                  }}
                 | method_call
                 | method_call brace_block {{ $$ = $1; $1.set_block($2); }}
+                | primary '.' operation2 '=' arg
+                  {{
+                    $$ = new CappRuby.AssignNode(new CappRuby.CallNode($1, $3, [[]]), $5);
+                  }}
                 | primary tCOLON2 oper_constant
                   {{
                     $$ = { type:'colon2', lhs:$1, rhs:$3 };
@@ -255,7 +265,7 @@ xstring_contents: none
                   }}
                 | IF expr then compstmt if_tail END
                   {{
-                    $$ = new CappRuby.IfNode($2, $4, $5);
+                    $$ = new CappRuby.IfNode($2, $4, $5, 'if');
                   }}
                 | kCASE expr opt_terms case_body kEND
                   {{
@@ -518,7 +528,7 @@ f_block_arg_name: IDENTIFIER
                   {{
                     $$ = yytext;
                   }}
-                | tCONSTANT
+                | CONSTANT
                   {{
                     $$ = yytext;
                   }}
@@ -537,7 +547,10 @@ f_block_arg_name: IDENTIFIER
                 | paren_args
                 ;
       
-      paren_args: '(' opt_call_args ')'
+      paren_args: CALL_BEGIN opt_call_args CALL_END
+                  {{
+                    $$ = $2;
+                  }}
                 ;
       
    opt_call_args: none
