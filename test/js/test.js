@@ -18,10 +18,25 @@ return cappruby_define_method(self, "awakeFromCib", function(self, _cmd) {
 // This is called when the cib is done loading
 });
 }, 0);
-cappruby_msgSend(self, "ben") || cappruby_msgSend(self, "tom");
-cappruby_msgSend(self, "adam") && cappruby_msgSend(self, "ben");
-cappruby_msgSend(self, "ben") || cappruby_msgSend(self, "tom");
-cappruby_msgSend(self, "ben") && cappruby_msgSend(self, "tom");
-cappruby_msgSend(cappruby_msgSend(self, "tom"), "!");
-return cappruby_msgSend(cappruby_msgSend(self, "tommy"), "!");
+try {
+cappruby_msgSend(self, "do_way:");
+}
+catch (_err) {
+var e = _err;
+// puts "rescued!"
+console.log("rescued!");}
+cappruby_msgSend(self, "raise:", "OMG!");
+self["@adam"] = cappruby_msgSend(self["@adam"], "+:", 4);
+self["@adam"] = cappruby_msgSend(self["@adam"], "-:", 4);
+self["@adam"] = cappruby_msgSend(self["@adam"], "*:", 4);
+self["@adam"] = cappruby_msgSend(self["@adam"], "/:", 4);
+self["@adam"] = cappruby_msgSend(self["@adam"], "%:", 100);
+self["@adam"] = cappruby_msgSend(self["@adam"], "**:", 400);
+self["@adam"] = cappruby_msgSend(self["@adam"], "&:", 200);
+self["@adam"] = cappruby_msgSend(self["@adam"], "|:", 400);
+self["@adam"] = cappruby_msgSend(self["@adam"], "^:", 600);
+self["@adam"] = cappruby_msgSend(self["@adam"], "<<:", 800);
+self["@adam"] = cappruby_msgSend(self["@adam"], ">>:", 392);
+self["@adam"] = self["@adam"] && 400;
+return self["@ben"] = self["@ben"] || 700;
 })();

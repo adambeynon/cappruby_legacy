@@ -22,12 +22,27 @@ class AppController
 
 end
 
-ben || tom
-adam && ben
+begin
+  do_way()
+rescue e
+  # puts "rescued!"
+  `console.log("rescued!");`
+end
 
-ben or tom
+raise "OMG!"
 
-ben and tom
+@adam += 4
+@adam -= 4
+@adam *= 4
+@adam /= 4
+@adam %= 100
+@adam **= 400
 
-!tom
-not tommy
+@adam &= 200
+@adam |= 400
+@adam ^= 600
+@adam <<= 800
+@adam >>= 392
+
+@adam &&= 400
+@ben ||= 700

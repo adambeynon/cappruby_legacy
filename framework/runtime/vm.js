@@ -136,6 +136,11 @@ cappruby_const_get = function(klass, id) {
   return false;
 };
 
+cappruby_const_at = function(klass, id) {
+  if (klass[id] !== undefined) return klass[id];
+  throw "NameError: Uninitialized constant " + id + " in " + klass
+};
+
 cappruby_function = function(name) {
   var args = Array.prototype.slice.call(arguments);
   if (!window[name] || typeof window[name] !== 'function') {

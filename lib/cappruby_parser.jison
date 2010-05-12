@@ -60,7 +60,17 @@ S
                 | terms { $$ = null; }
                 ;
       
-      opt_rescue: { $$ = null; }
+      opt_rescue: { $$ = []; }
+                | RESCUE exc_list exc_var then compstmt opt_rescue
+                  {{ $$ = [[$2, $3, $5]].concat($6); }}
+                ;
+          
+        exc_list: arg
+                |
+                ;
+        
+         exc_var: ASSOC lhs {{ $$ = $2 }}
+                |
                 ;
         
         opt_else: { $$ = null; }
@@ -111,10 +121,17 @@ S
                     $$ = new CappRuby.NotNode($2);
                   }}
                 ;
-            
+          
+         op_asgn: OP_ASGN {{ $$ = yytext; }}
+                ;
+                
              arg: variable '=' expr
                   {{
                     $$ = new CappRuby.AssignNode($1, $3);
+                  }}
+                | variable op_asgn arg
+                  {{
+                    $$ = new CappRuby.OpAsgnNode($2, $1, $3);
                   }}
                 | arg tDOT2 arg
                   {{
@@ -281,19 +298,23 @@ xstring_contents: none
                     // jison cant quite handle full grammar, so cheeky little hack
                     $$ = new CappRuby.ParenArgsNode($1);
                   }}
+                | BEGIN bodystmt END
+                  {{
+                    $$ = new CappRuby.BeginNode($2);
+                  }}
                 | method_call
                 | method_call brace_block {{ $$ = $1; $1.set_block($2); }}
                 | primary '.' operation2 '=' arg
                   {{
                     $$ = new CappRuby.AssignNode(new CappRuby.CallNode($1, $3, [[]]), $5);
                   }}
-                | primary tCOLON2 oper_constant
+                | primary COLON2 oper_constant
                   {{
-                    $$ = { type:'colon2', lhs:$1, rhs:$3 };
+                    $$ = new CappRuby.Colon2Node($1, $3);
                   }}
-                | tCOLON3 oper_constant
+                | COLON3 oper_constant
                   {{
-                    $$ = { type:'colon3', name:$2 };
+                    $$ = new CappRuby.Colon3Node($2);
                   }}
                 | IF expr then compstmt if_tail END
                   {{
@@ -311,11 +332,11 @@ xstring_contents: none
                   {{
                     $$ = new CappRuby.WhileNode($2, $4, 'until');
                   }}
-                | kCASE expr opt_terms case_body kEND
+                | CASE expr opt_terms case_body END
                   {{
-                    $$ = { type:'case', expr:$2, body:$4 };
+                    $$ = new CappRuby.CaseNode($2, $4);
                   }}
-                | kCASE opt_terms case_body kEND
+                | CASE opt_terms case_body END
                   {{
                     $$ = { type:'case', expr:null, body:$3 };
                   }}
@@ -491,7 +512,7 @@ f_block_arg_name: IDENTIFIER
                   }}
                 ;
        
-       case_body: kWHEN args then compstmt cases
+       case_body: WHEN args then compstmt cases
                 ;
           
            cases: opt_else
@@ -588,7 +609,7 @@ f_block_arg_name: IDENTIFIER
                   }}
                 ;
     
-   oper_constant: tCONSTANT {{ $$ = yytext; }}
+   oper_constant: CONSTANT {{ $$ = yytext; }}
                 ;
       
   opt_paren_args: none
@@ -652,7 +673,7 @@ f_block_arg_name: IDENTIFIER
                 ;
         
         variable: IDENTIFIER    {{ $$ = new CappRuby.IdentifierNode(yytext); }}
-                | IVAR          {{ $$ = { type:'ivar', name:yytext }; }}
+                | IVAR          {{ $$ = new CappRuby.IvarNode(yytext); }}
                 | GVAR
                 | CONSTANT      {{ $$ = new CappRuby.ConstantNode(yytext); }}
                 | CVAR
@@ -691,6 +712,9 @@ f_block_arg_name: IDENTIFIER
                 ;
             
              sym: fname
+                | IVAR    {{ $$ = yytext; }}
+                | GVAR    {{ $$ = yytext; }}
+                | CVAR    {{ $$ = yytext; }}
                 ;
             
            fname: IDENTIFIER { $$ = yytext; }

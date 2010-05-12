@@ -1,1 +1,7 @@
-# deal with Rakefiles but load into cappruby/objj environment
+#!/usr/bin/env narwhal
+
+var File = require('file');
+var OS = require('os');
+var libPath = File.join(File.dirname(module.path), '../lib');
+
+require('../lib/capprake').run();
