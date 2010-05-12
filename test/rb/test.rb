@@ -22,7 +22,12 @@ class AppController
 
 end
 
-40 + 40 if adam < 10
-40 - 400 unless adam < 10
+ben || tom
+adam && ben
 
-# adam.do_something unless adam
+ben or tom
+
+ben and tom
+
+!tom
+not tommy

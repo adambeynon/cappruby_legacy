@@ -18,11 +18,10 @@ return cappruby_define_method(self, "awakeFromCib", function(self, _cmd) {
 // This is called when the cib is done loading
 });
 }, 0);
-if (cappruby_msgSend(cappruby_msgSend(self, "adam"), "<:", 10)){
-cappruby_msgSend(40, "+:", 40);
-}
-if (!(cappruby_msgSend(cappruby_msgSend(self, "adam"), "<:", 10))){
-return cappruby_msgSend(40, "-:", 400);
-}
-// adam.do_something unless adam
+cappruby_msgSend(self, "ben") || cappruby_msgSend(self, "tom");
+cappruby_msgSend(self, "adam") && cappruby_msgSend(self, "ben");
+cappruby_msgSend(self, "ben") || cappruby_msgSend(self, "tom");
+cappruby_msgSend(self, "ben") && cappruby_msgSend(self, "tom");
+cappruby_msgSend(cappruby_msgSend(self, "tom"), "!");
+return cappruby_msgSend(cappruby_msgSend(self, "tommy"), "!");
 })();

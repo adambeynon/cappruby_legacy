@@ -21,12 +21,20 @@ class Symbol
   end
   
   # alias_method :id2name, :to_s
+  # FIXME: alias_method
+  def id2name
+    to_s
+  end
   
   def to_sym
     self
   end
   
   # alias_method :intern, :to_sym
+  # FIXME: alias_method
+  def intern
+    self
+  end
   
   def to_proc
     `var id = #{self}._sym;

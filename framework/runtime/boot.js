@@ -66,15 +66,14 @@ function Init_CappRuby() {
   // cappruby_mKernel = define module...
   
   cappruby_const_set(cappruby_cObject, 'NilClass', CPNull);
-  
   cappruby_const_set(cappruby_cObject, 'Boolean', CPBoolean);
-  
   cappruby_const_set(cappruby_cObject, 'Number', CPNumber);
   
   cappruby_cSymbol = cappruby_define_class('Symbol', CPObject);
   
   cappruby_const_set(cappruby_cObject, 'Array', CPArray);
   cappruby_const_set(cappruby_cObject, 'String', CPString);
+  cappruby_const_set(cappruby_cObject, 'Proc', CPBlock);
 };
 
 

@@ -85,11 +85,31 @@ S
                   {{
                     $$ = new CappRuby.IfNode($3, [$1], [], 'unless');
                   }}
+                | stmt WHILE_MOD expr
+                  {{
+                    $$ = new CappRuby.WhileNode($3, [$1], 'while');
+                  }}
+                | stmt UNTIL_MOD expr
+                  {{
+                    $$ = new CappRuby.WhileNode($3, [$1], 'until');
+                  }}
                 | expr
                 ;
             
             expr: command_call
                 | arg
+                | expr OR expr
+                  {{
+                    $$ = new CappRuby.OperationNode('||', $1, $3);
+                  }}
+                | expr AND expr
+                  {{
+                    $$ = new CappRuby.OperationNode('&&', $1, $3);
+                  }}
+                | NOT arg
+                  {{
+                    $$ = new CappRuby.NotNode($2);
+                  }}
                 ;
             
              arg: variable '=' expr
@@ -167,6 +187,18 @@ S
                 | arg '===' arg
                   {{
                     $$ = new CappRuby.CallNode($1, '===', [[$3]]);
+                  }}
+                | arg OROP arg
+                  {{
+                    $$ = new CappRuby.OperationNode('||', $1, $3);
+                  }}
+                | arg ANDOP arg
+                  {{
+                    $$ = new CappRuby.OperationNode('&&', $1, $3);
+                  }}
+                | '!' arg
+                  {{
+                    $$ = new CappRuby.NotNode($2);
                   }}
                 | arg '?' arg ':' arg
                   {{
@@ -267,6 +299,18 @@ xstring_contents: none
                   {{
                     $$ = new CappRuby.IfNode($2, $4, $5, 'if');
                   }}
+                | UNLESS expr then compstmt opt_else END
+                  {{
+                    $$ = new CappRuby.IfNode($2, $4, $5, 'unless');
+                  }}
+                | WHILE expr do compstmt END
+                  {{
+                    $$ = new CappRuby.WhileNode($2, $4, 'while');
+                  }}
+                | UNTIL expr do compstmt END
+                  {{
+                    $$ = new CappRuby.WhileNode($2, $4, 'until');
+                  }}
                 | kCASE expr opt_terms case_body kEND
                   {{
                     $$ = { type:'case', expr:$2, body:$4 };
@@ -330,6 +374,8 @@ xstring_contents: none
                 ;
         
        f_arglist: 'PAREN_BEGIN' f_args 'CALL_END'
+                  {{ $$ = $2; }}
+                | 'CALL_BEGIN' f_args 'CALL_END'
                   {{ $$ = $2; }}
                 | f_args term
                   {{ $$ = $1; }}
@@ -404,6 +450,8 @@ f_block_arg_name: IDENTIFIER
                 
       f_arg_item: IDENTIFIER
                   {{ $$ = yytext; }}
+                | label Identifier
+                  {{ $$ = [$1, $2]; }}
                 ;
                 
      brace_block: '{' opt_block_param bodystmt '}'
@@ -684,6 +732,10 @@ f_block_arg_name: IDENTIFIER
         
          numeric: INTEGER {{ $$ = new CappRuby.NumericNode(yytext); }}
                 | FLOAT {{ $$ = new CappRuby.NumericNode(yytext); }}
+                ;
+              
+              do: term
+                | DO
                 ;
           
             term: ';'

@@ -12,7 +12,7 @@ class Object
   
   def puts *args
     args.each do |arg|
-      `console.log(#{arg});`
+      `print(#{arg});`
     end
   end
   
@@ -60,11 +60,11 @@ class Object
   # alias_method :fail, :raise
   
   def object_id
-    
+    `return objj_msgSend(#{self}, 'UID');`
   end
   
-  def respond_to?
-    
+  def respond_to? method_id
+    respondsToSelector method_id.to_s
   end
   
   def to_s
@@ -76,14 +76,19 @@ class Object
   end
   
   def instance_of? cls
-    
+    isMemberOfClass cls
   end
   
   def kind_of? cls
-    
+    isKindOfClass cls
   end
   
   # alias_method :is_a?, :kind_of?
+  
+  # FIXME: implement alias
+  def is_a? cls
+    isKindOfClass cls
+  end
   
   def instance_eval string, &block
     if string
