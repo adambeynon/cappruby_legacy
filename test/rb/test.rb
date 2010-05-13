@@ -13,36 +13,20 @@ class AppController
   def applicationDidFinishLaunching aNotification
     # This is called when the application is done loading
     `console.log('ohhhhh yeah! applicationDidFinishLaunching');`
-    # main_window
+
+    btn2 = button :title => "Click me!", :frame => [100, 100, 100, 24]
+    
+    btn2.title = "CappRuby rokz!"
+    
+    CPApp.mainWindow << btn2
   end
     
   def awakeFromCib
     # This is called when the cib is done loading
   end
+  
+  def tester &adam
+    yield self if block_given?
+  end
 
 end
-
-begin
-  do_way()
-rescue e
-  # puts "rescued!"
-  `console.log("rescued!");`
-end
-
-raise "OMG!"
-
-@adam += 4
-@adam -= 4
-@adam *= 4
-@adam /= 4
-@adam %= 100
-@adam **= 400
-
-@adam &= 200
-@adam |= 400
-@adam ^= 600
-@adam <<= 800
-@adam >>= 392
-
-@adam &&= 400
-@ben ||= 700

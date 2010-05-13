@@ -11,32 +11,20 @@ var _cmd = "";
 cappruby_defineclass(self, nil, "AppController", function(self) {
 // attr_accessor :the_window
 cappruby_define_method(self, "applicationDidFinishLaunching:", function(self, _cmd, aNotification) {
+var btn2;
 // This is called when the application is done loading
-console.log('ohhhhh yeah! applicationDidFinishLaunching');// main_window
+console.log('ohhhhh yeah! applicationDidFinishLaunching');btn2 = cappruby_msgSend(self, "button:", objj_msgSend(CPDictionary, "dictionaryWithObjects:forKeys:", ["Click me!", [100, 100, 100, 24]], [ID2SYM("title"), ID2SYM("frame")]));
+cappruby_msgSend(btn2, "setTitle:", "CappRuby rokz!");
+return cappruby_msgSend(cappruby_msgSend(cappruby_const_get(self, "CPApp"), "mainWindow"), "<<:", btn2);
 });
-return cappruby_define_method(self, "awakeFromCib", function(self, _cmd) {
+cappruby_define_method(self, "awakeFromCib", function(self, _cmd) {
 // This is called when the cib is done loading
 });
-}, 0);
-try {
-cappruby_msgSend(self, "do_way:");
+return cappruby_define_method(self, "tester", function(self, _cmd) {
+var adam = arguments[arguments.length - 1];
+if ((typeof adam === "function")){
+cappruby_yield(adam, self);
 }
-catch (_err) {
-var e = _err;
-// puts "rescued!"
-console.log("rescued!");}
-cappruby_msgSend(self, "raise:", "OMG!");
-self["@adam"] = cappruby_msgSend(self["@adam"], "+:", 4);
-self["@adam"] = cappruby_msgSend(self["@adam"], "-:", 4);
-self["@adam"] = cappruby_msgSend(self["@adam"], "*:", 4);
-self["@adam"] = cappruby_msgSend(self["@adam"], "/:", 4);
-self["@adam"] = cappruby_msgSend(self["@adam"], "%:", 100);
-self["@adam"] = cappruby_msgSend(self["@adam"], "**:", 400);
-self["@adam"] = cappruby_msgSend(self["@adam"], "&:", 200);
-self["@adam"] = cappruby_msgSend(self["@adam"], "|:", 400);
-self["@adam"] = cappruby_msgSend(self["@adam"], "^:", 600);
-self["@adam"] = cappruby_msgSend(self["@adam"], "<<:", 800);
-self["@adam"] = cappruby_msgSend(self["@adam"], ">>:", 392);
-self["@adam"] = self["@adam"] && 400;
-return self["@ben"] = self["@ben"] || 700;
+});
+}, 0);
 })();

@@ -34,8 +34,17 @@ Jake.task('self_contained', function() {
   });
   // core library sources
   File.list(File.absolute('framework/core')).forEach(function(file) {
+    if (File.extension(file) !== '.rb') return;
     print("doing: " + file);
     var src = File.read(File.absolute('framework/core/' + file));
+    str += "\n//" +  file + "\n";
+    str += new CappRuby.Parser(src, file).parse();
+  });
+  // Capp extensions
+  File.list(File.absolute('framework/cappruby')).forEach(function(file) {
+    if (File.extension(file) !== '.rb') return;
+    print ("doing " + file);
+    var src = File.read(File.absolute('framework/cappruby/' + file));
     str += "\n//" +  file + "\n";
     str += new CappRuby.Parser(src, file).parse();
   });

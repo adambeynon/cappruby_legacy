@@ -74,6 +74,7 @@ function Init_CappRuby() {
   cappruby_const_set(cappruby_cObject, 'Array', CPArray);
   cappruby_const_set(cappruby_cObject, 'String', CPString);
   cappruby_const_set(cappruby_cObject, 'Proc', CPBlock);
+  cappruby_const_set(cappruby_cObject, 'Hash', CPDictionary);
 };
 
 

@@ -23,9 +23,9 @@ var top_self_to_s = function() {
 // Initialize top self
 function Init_top_self() {
   cappruby_top_self = class_createInstance(cappruby_cObject);
-  cappruby_define_singleton_method(cappruby_top_self, 'to_s', function() {
-    return 'main';
-  });
+  // set top self as a singleton to make sure we can define top level methods
+  // on top self, rather than CPObject.
+  cappruby_singleton_class(cappruby_top_self);
 };
 
 cappruby_defineclass = function(base, super_class, name, body, flag) {
@@ -78,8 +78,11 @@ cappruby_singleton_class = function(klass) {
       // alreay a singleton
       return klass.isa;
     } else {
-      console.log(klass);
-      throw "not a singleton.. need to make it one."
+      var s = objj_allocateClassPair(klass.isa, klass.isa.name);
+      // _class_initialize(s);
+      s.info |= CLS_SINGLETON;
+      klass.isa = s;
+      return klass.isa;
     }
   } else {
     // meta class, so already singleton
@@ -99,8 +102,8 @@ cappruby_define_method = function(receiver, selector, body) {
   return class_addMethod(receiver, selector, body, []);
 };
 
-cappruby_define_singleton_method = function() {
-  
+cappruby_define_singleton_method = function(recv, sel, body) {
+  cappruby_define_method(cappruby_singleton_class(recv), sel, body);
 };
 
 cappruby_const_set = function(klass, id, val) {
@@ -142,7 +145,7 @@ cappruby_const_at = function(klass, id) {
 };
 
 cappruby_function = function(name) {
-  var args = Array.prototype.slice.call(arguments);
+  var args = Array.prototype.slice.call(arguments, 1);
   if (!window[name] || typeof window[name] !== 'function') {
     throw "cappruby_function: " + name + " is not a valid function."
   }

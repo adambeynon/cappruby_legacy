@@ -102,4 +102,12 @@ class Object
   def instance_exec *args, &block
     
   end
+  
+  def instance_variable_set ivarname, value
+    `return #{self}[#{ivarname}] = #{value};`
+  end
+  
+  def instance_variable_get ivarname
+    `return #{self}[#{ivarname}];`
+  end
 end

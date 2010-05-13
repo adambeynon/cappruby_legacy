@@ -9,6 +9,15 @@ class << CPObject
     return objj_msgSend.apply(r, [r, 'init'].concat(#{args}));`
   end
   
+  # Define a method, with the given method_id, with block as its implementation
+  # 
+  # @param {Symbol} method_id
+  # @param {Proc} block
+  def define_method method_id, &block
+    `var block = arguments[arguments.length - 1];
+    return cappruby_define_method(#{self}, #{method_id.to_s}, block);`
+  end
+  
   def alias_method new_method, old_method
     `return cappruby_alias(#{self}, #{new_method}._sym, #{old_method}._sym);`
   end

@@ -360,33 +360,51 @@ xstring_contents: none
                   {{
                     $$ = new CappRuby.DefNode($4, $2, $5, $6);
                   }}
+                | HASH_BEGIN assoc_list '}'
+                  {{
+                    $$ = new CappRuby.HashNode($2);
+                  }}
                 | ARRAY_BEGIN aref_args ARRAY_END
                   {{
                     $$ = new CappRuby.ArrayNode($2);
                   }}
                 | YIELD '(' call_args ')'
                   {{
-                    $$ = { type:'yield', call_args:$3 };
+                    $$ = new CappRuby.YieldNode($3);
                   }}
                 | YIELD '(' ')'
                   {{
-                    $$ = { type:'yield' };
+                    $$ = new CappRuby.YieldNode();
                   }}
                 | YIELD
                   {{
-                    $$ = { type:'yield' };
+                    $$ = new CappRuby.YieldNode()
                   }}
                 | BREAK
                   {{
                     $$ = new CappRuby.BreakNode();
                   }}
+                | RETURN
+                  {{
+                    $$ = new CappRuby.ReturnNode();
+                  }}
+                ;
+      
+      assoc_list: 
+                | assocs trailer
+                ;
+        
+         trailer:
+                | '\n',
+                | ','
                 ;
                 
        aref_args: none
                 | args
                 ;
       
-       singleton: variable
+       singleton: SINGLETON   {{ $$ = new CappRuby.IdentifierNode(yytext); }}
+                | variable
                 | '(' expr ')'
                 ;
       
@@ -454,14 +472,14 @@ xstring_contents: none
                 | '*'
                 ;
                 
- opt_f_block_arg: none
-                | ',' f_block_arg
+ opt_f_block_arg: none                {{ $$ = null; }}
+                | ',' f_block_arg     {{ $$ = $2; }}
                 ;
     
-f_block_arg_name: IDENTIFIER
+f_block_arg_name: IDENTIFIER          {{ $$ = yytext; }}
                 ;
 
-     f_block_arg: blkarg_mark f_block_arg_name
+     f_block_arg: blkarg_mark f_block_arg_name  {{ $$ = $2; }}
                 ;
      
      blkarg_mark: '&'
@@ -543,6 +561,10 @@ f_block_arg_name: IDENTIFIER
                   {{
                     $$ = new CappRuby.BreakNode($2);
                   }}
+                | RETURN call_args
+                  {{
+                    $$ = new CappRuby.ReturnNode($2);
+                  }}
                 ;
       
          command: primary call_args
@@ -558,6 +580,9 @@ f_block_arg_name: IDENTIFIER
                 | primary tCOLON2 operation2 call_args cmd_brace_block
                 | kSUPER call_args
                 | YIELD call_args
+                  {{
+                    $$ = new CappRuby.YieldNode($2);
+                  }}
                 ;
       
    block_command: block_call
@@ -589,7 +614,9 @@ f_block_arg_name: IDENTIFIER
                   }}
                 | primary 'INDEX_BEGIN' opt_call_args 'ARRAY_END' '=' arg
                   {{
-                    $$ = new CappRuby.CallNode($1, '[]=', $3[0].concat([$6]));
+                    // $$ = new CappRuby.CallNode($1, '[]=', $3[0].concat([$6]));
+                    $3[0].push($6);
+                    $$ = new CappRuby.CallNode($1, '[]=', $3);
                   }}
                 ;
        
@@ -681,13 +708,10 @@ f_block_arg_name: IDENTIFIER
                 | SELF          {{ $$ = new CappRuby.SelfNode(); }}
                 | TRUE          {{ $$ = new CappRuby.TrueNode(); }}
                 | FALSE         {{ $$ = new CappRuby.FalseNode(); }}
-                | __FILE__ {{ $$ = { type:'__FILE__' }; }}
+                | __FILE__      {{ $$ = { type:'__FILE__' }; }}
                 | __LINE__
                 | __ENCODING__
-                | BLOCK_GIVEN
-                  {{
-                    $$ = { type:'block_given' };
-                  }}
+                | BLOCK_GIVEN   {{ $$ = new CappRuby.BlockGivenNode(); }}
                 ;
         
       superclass:
