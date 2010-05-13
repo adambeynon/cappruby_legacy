@@ -22,6 +22,10 @@ class << CPObject
     `return cappruby_alias(#{self}, #{new_method}._sym, #{old_method}._sym);`
   end
   
+  def === instance
+    instance.instance_of? self
+  end
+  
   def attr attributes
     
   end
