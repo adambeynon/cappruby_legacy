@@ -27,4 +27,6 @@ cappruby_yield(adam, self);
 }
 });
 }, 0);
+/^\n\.omg/;
+return ["adam ", objj_msgSend(10, 'to_s'), " ", objj_msgSend(20, 'to_s')].join("");
 })();

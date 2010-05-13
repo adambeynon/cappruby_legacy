@@ -30,3 +30,8 @@ class AppController
   end
 
 end
+
+
+/^\n\.omg/
+
+"adam #{10} #{20}"

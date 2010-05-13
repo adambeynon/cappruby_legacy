@@ -274,9 +274,9 @@ xstring_contents: none
                   }}
                 ;
         
-          regexp: tREGEXP_BEG xstring_contents tREGEXP_END
+          regexp: REGEXP_BEGIN xstring_contents REGEXP_END
                   {{
-                    $$ = { type:'regexp', value:$2 };
+                    $$ = new CappRuby.RegExpNode($2);
                   }}
                 ;
       
