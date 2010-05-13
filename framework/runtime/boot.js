@@ -65,6 +65,10 @@ function Init_CappRuby() {
   cappruby_cClass = boot_defclass('Class', cappruby_cModule);
   // cappruby_mKernel = define module...
   
+  var reg = cappruby_define_class('Regexp', CPObject);
+  cappruby_const_set(cappruby_cObject, 'Regexp', reg);
+  RegExp.prototype.isa = reg;
+  
   cappruby_const_set(cappruby_cObject, 'NilClass', CPNull);
   cappruby_const_set(cappruby_cObject, 'Boolean', CPBoolean);
   cappruby_const_set(cappruby_cObject, 'Number', CPNumber);
