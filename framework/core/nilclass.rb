@@ -4,4 +4,8 @@ class NilClass
     true
   end
   
+  def inspect
+    "nil"
+  end
+  
 end

@@ -24,4 +24,10 @@ class MatchData
     @data[index]
   end
   
+  def length
+    `return #{@data}.length;`
+  end
+  
+  # alias_method :size, :length
+  
 end

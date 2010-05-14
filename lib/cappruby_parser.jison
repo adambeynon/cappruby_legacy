@@ -205,6 +205,18 @@ S
                   {{
                     $$ = new CappRuby.CallNode($1, '===', [[$3]]);
                   }}
+                | arg '&' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '&', [[$3]]);
+                  }}
+                | arg '|' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '|', [[$3]]);
+                  }}
+                | arg '^' arg
+                  {{
+                    $$ = new CappRuby.CallNode($1, '^', [[$3]]);
+                  }}
                 | arg OROP arg
                   {{
                     $$ = new CappRuby.OperationNode('||', $1, $3);
