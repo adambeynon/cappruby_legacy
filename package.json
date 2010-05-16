@@ -1,0 +1,8 @@
+{
+  "name": "cappruby",
+  "dependencies": ["cappuccino"],
+  "preload": ["cappruby/loader"],
+  "description": "Ruby for Cappuccino",
+  "keywords": ["ruby", "cappruby", "cappuccino"],
+  "author": "Adam Beynon. (http://adambeynon.com)"
+}

@@ -295,7 +295,8 @@ xstring_contents: none
       Identifier: IDENTIFIER      {{ $$ = yytext; }}
                 ;
                 
-         primary: COMMENT     {{ $$ = new CappRuby.CommentNode(yytext); }}
+         primary: COMMENT         {{ $$ = new CappRuby.CommentNode(yytext); }}
+                | REQUIRE STRING_BEGIN string_content STRING_END  {{ $$ = new CappRuby.RequireNode($3[1]); }}
                 | literal
                 | string
                 | xstring

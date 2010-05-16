@@ -12,8 +12,9 @@ class Object
   
   def puts *args
     args.each do |arg|
-      `print(#{arg});`
+      `((typeof CPLogPrint !== 'undefined') ? CPLogPrint : CPLogConsole)(#{arg}, 'info', #{arg});`
     end
+    nil
   end
   
   def nil?
