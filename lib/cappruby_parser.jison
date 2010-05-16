@@ -361,9 +361,9 @@ xstring_contents: none
                   {{
                     $$ = new CappRuby.ClassShiftNode($3, $5);
                   }}
-                | kMODULE cpath bodystmt kEND
+                | MODULE cpath bodystmt END
                   {{
-                    $$ = { type:'module', cpath:$2, bodystmt:$3 };
+                    $$ = new CappRuby.ModuleNode($2, $3);
                   }}
                 | DEF fname f_arglist bodystmt END
                   {{

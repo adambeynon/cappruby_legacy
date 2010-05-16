@@ -1,6 +1,6 @@
 {
   "name": "cappruby",
-  "dependencies": ["cappuccino"],
+  "dependencies": ["objective-j", "cappuccino"],
   "preload": ["cappruby/loader"],
   "description": "Ruby for Cappuccino",
   "keywords": ["ruby", "cappruby", "cappuccino"],

@@ -50,3 +50,12 @@ Jake.task('self_contained', function() {
   });
   File.write(out, str);
 });
+
+Jake.task('spec', function() {
+  var CappSpec = require('cappspec');
+  new CappSpec.SpecRunner().run();
+  // var list = new Jake.FileList('lib/**/*.js');
+  // list.forEach(function(item) {
+  //   print(item);
+  // });
+});

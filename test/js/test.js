@@ -8,10 +8,10 @@ var _cmd = "";
 //  Created by Adam Beynon on 2010-05-09.
 //  Copyright 2010 Adam Beynon. All rights reserved.
 // 
-objj_executeFile("AppKit/CPWindow.j", false);
-objj_executeFile("AppKit/AppKit.rb", false);
-objj_executeFile("string_scanner.rb", true);
-objj_executeFile("../window.js", true);
+// require 'AppKit/CPWindow.j'
+// require 'AppKit/AppKit'
+// require './string_scanner'
+// require '../window.js'
 cappruby_defineclass(self, nil, "AppController", function(self) {
 // attr_accessor :the_window
 cappruby_define_method(self, "applicationDidFinishLaunching:", function(self, _cmd, aNotification) {

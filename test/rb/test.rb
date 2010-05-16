@@ -6,14 +6,6 @@
 #  Copyright 2010 Adam Beynon. All rights reserved.
 # 
 
-require 'AppKit/CPWindow.j'
-
-require 'AppKit/AppKit'
-
-require './string_scanner'
-
-require '../window.js'
-
 class AppController
   
   # attr_accessor :the_window
