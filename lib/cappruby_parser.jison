@@ -446,7 +446,7 @@ xstring_contents: none
              		| f_arg ',' f_rest_arg ',' f_arg opt_f_block_arg
              		  {{ $$ = [$1, $3, $5, [], $6]; }}
              		| f_arg opt_f_block_arg
-             		  {{ $$ = [$1, $3, $5, [], $6]; }}
+             		  {{ $$ = [$1, $3, $5, [], $2]; }}
             		| f_optarg ',' f_rest_arg opt_f_block_arg
             		  {{ $$ = [$1, $3, $5, [], $6]; }}
             		| f_optarg ',' f_rest_arg ',' f_arg opt_f_block_arg

@@ -35,9 +35,14 @@ cappruby_defineclass = function(base, super_class, name, body, flag) {
   if (!base.info) base = cappruby_class_real(base.isa);
   
   switch (flag) {
-    case 0:  // normal class
+    case 0: // normal class
       if (super_class === nil) super_class = CPObject;
       klass = cappruby_define_class_under(base, name, super_class);
+      body(klass);
+      break;
+    case 1: // class shift
+    case 2: // module
+      klass = cappruby_define_module_under(base, name);
       body(klass);
       break;
     default:
@@ -61,6 +66,10 @@ cappruby_define_class_under = function(outer, id, super_class) {
   
   klass = objj_allocateClassPair(super_class, id);
   
+  // force initialize
+  klass.info |= CLS_INITIALIZED;
+  klass.isa.info |= CLS_INITIALIZED;
+  
   // only if outer is CPObject, otherwise all inner klasses/modules get added to
   // global scope
   if (outer === CPObject)
@@ -80,7 +89,9 @@ cappruby_singleton_class = function(klass) {
     } else {
       var s = objj_allocateClassPair(klass.isa, klass.isa.name);
       // _class_initialize(s);
-      s.info |= CLS_SINGLETON;
+      // force initialize
+      s.info |= CLS_INITIALIZED;
+      s.isa.info |= CLS_INITIALIZED;
       klass.isa = s;
       return klass.isa;
     }
@@ -107,7 +118,7 @@ cappruby_define_singleton_method = function(recv, sel, body) {
 };
 
 cappruby_const_set = function(klass, id, val) {
-  klass[id] = val;
+  return klass[id] = val;
 };
 
 cappruby_const_defined = function(klass, id) {
@@ -130,18 +141,24 @@ cappruby_const_get = function(klass, id) {
     klass = klass.super_class;
   }
   
+  klass = o.cappruby_parent;
+  while (klass) {
+    if (klass[id] !== undefined) return klass[id];
+    klass = klass.cappruby_parent;
+  }
+  
   if (global[id] !== undefined) {
     cappruby_cObject[id] = window[id];
     return global[id];
   }
 
-  throw "Name Error: Uninitialized constant: " + id + " in " + o;
+  throw "Name Error: Uninitialized constant: " + id
   return false;
 };
 
 cappruby_const_at = function(klass, id) {
   if (klass[id] !== undefined) return klass[id];
-  throw "NameError: Uninitialized constant " + id + " in " + klass
+  throw "NameError: Uninitialized constant " + id
 };
 
 cappruby_function = function(name) {
@@ -165,7 +182,13 @@ cappruby_msgSend = function(recv, sel) {
     imp = recv.isa.method_dtable[sel];
     
   if (!imp) {
-    return cappruby_msgSend(recv, 'forward::', sel, Array.prototype.slice.call(arguments, 2));
+    // return cappruby_msgSend(recv, 'forward::', sel, Array.prototype.slice.call(arguments));
+    var forward = new objj_method("forward", function(self, _cmd)
+    {
+        return objj_msgSend(self, "forward::", _cmd, arguments);
+    });
+    imp = forward.method_imp;
+    // throw "method_missing: " + sel;
   } else {
     imp = imp.method_imp;
   }

@@ -79,6 +79,11 @@ function Init_CappRuby() {
   cappruby_const_set(cappruby_cObject, 'String', CPString);
   cappruby_const_set(cappruby_cObject, 'Proc', CPBlock);
   cappruby_const_set(cappruby_cObject, 'Hash', CPDictionary);
+  
+  // commonjs specific classes... just instantiate here
+  var cappruby_cFile = objj_allocateClassPair(CPObject, 'File');
+  cappruby_const_set(cappruby_cObject, 'File', cappruby_cFile);
+  cappruby_const_set(cappruby_cObject, 'Dir', objj_allocateClassPair(CPObject, 'Dir'));
 };
 
 
@@ -103,6 +108,8 @@ function objj_alloc_class(name, super_class, type, klass) {
   name = name || ("RubyAnonymous" + anonymous_count++);
   super_class = super_class || CPObject;
   var o = objj_allocateClassPair(super_class, name);
+  o.info |= CLS_INITIALIZED;
+  o.isa.info |= CLS_INITIALIZED;
   cappruby_const_set(CPObject, name, o);
   return o;
 };

@@ -6,6 +6,15 @@
 #  Copyright 2010 Adam Beynon. All rights reserved.
 # 
 
+module ModuleA
+  
+  module ModuleB
+    Spec::Example::ExampleGroupFactory.create_example_group str, block
+  end
+  
+end
+
+
 class AppController
   
   # attr_accessor :the_window

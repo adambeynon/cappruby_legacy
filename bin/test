@@ -1,9 +1,0 @@
-#!/usr/bin/env narwhal
-
-var File = require('file');
-var OS = require('os');
-
-
-for (var i = 0; i < system.args.length; i++) {
-  print(system.args[i]);
-}

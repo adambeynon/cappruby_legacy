@@ -52,10 +52,15 @@ Jake.task('self_contained', function() {
 });
 
 Jake.task('spec', function() {
-  var CappSpec = require('cappspec');
-  new CappSpec.SpecRunner().run();
+  // var CappSpec = require('cappspec');
+  CappSpec.Runner.run();
   // var list = new Jake.FileList('lib/**/*.js');
   // list.forEach(function(item) {
   //   print(item);
   // });
+});
+
+// Compile all ruby found in ./src to javascript to be placed in ./lib
+Jake.task('src', function() {
+  
 });

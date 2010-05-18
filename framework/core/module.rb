@@ -47,4 +47,8 @@ class << CPObject
     # attr_writer *attributes
   end
   
+  def const_set name, value
+    `return cappruby_const_set(#{self}, #{name}, #{value});`
+  end
+  
 end

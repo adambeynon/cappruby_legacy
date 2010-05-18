@@ -8,10 +8,11 @@ var _cmd = "";
 //  Created by Adam Beynon on 2010-05-09.
 //  Copyright 2010 Adam Beynon. All rights reserved.
 // 
-// require 'AppKit/CPWindow.j'
-// require 'AppKit/AppKit'
-// require './string_scanner'
-// require '../window.js'
+cappruby_defineclass(self, nil, "ModuleA", function(self) {
+cappruby_defineclass(self, nil, "ModuleB", function(self) {
+return cappruby_msgSend(cappruby_const_at(cappruby_const_at(cappruby_const_get(self, "Spec"), "Example"), "ExampleGroupFactory"), "create_example_group:", cappruby_msgSend(self, "str"), cappruby_msgSend(self, "block"));
+}, 2);
+}, 2);
 cappruby_defineclass(self, nil, "AppController", function(self) {
 // attr_accessor :the_window
 cappruby_define_method(self, "applicationDidFinishLaunching:", function(self, _cmd, aNotification) {
