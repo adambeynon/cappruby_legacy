@@ -294,6 +294,9 @@ xstring_contents: none
       
       Identifier: IDENTIFIER      {{ $$ = yytext; }}
                 ;
+    
+   call_constant: CALL_CONSTANT   {{ console.log("call constant! " + yytext); $$ = yytext; }}
+                ;
                 
          primary: COMMENT         {{ $$ = new CappRuby.CommentNode(yytext); }}
                 | REQUIRE STRING_BEGIN string_content STRING_END  {{ $$ = new CappRuby.RequireNode($3[1]); }}
@@ -306,10 +309,10 @@ xstring_contents: none
                   {{
                     $$ = new CappRuby.CallNode(null, $1, [null, null, $2]);
                   }}
-                | paren_args
+                | call_constant CALL_BEGIN opt_call_args CALL_END
                   {{
                     // jison cant quite handle full grammar, so cheeky little hack
-                    $$ = new CappRuby.ParenArgsNode($1);
+                    $$ = new CappRuby.CallNode(null, $1, $3);
                   }}
                 | BEGIN bodystmt END
                   {{
@@ -582,7 +585,7 @@ f_block_arg_name: IDENTIFIER          {{ $$ = yytext; }}
       
          command: primary call_args
                   {{
-                    $$ = new CappRuby.CallNode(null, $1._value, $2);
+                    $$ = CappRuby.handle_primary_call_args($1, $2);
                   }}
                 | primary '.' operation2 call_args
                   {{
