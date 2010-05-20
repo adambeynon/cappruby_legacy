@@ -1,8 +1,10 @@
-# require ..
+require './matchers/be'
+require './matchers/generated_descriptions'
+require './matchers/operator_matcher'
 
 module Spec
   
-  module Matchers
+  module Example
     
     class Matcher
       
@@ -14,13 +16,18 @@ module Spec
       def initialize name, expected, &declarations
         @name = name
         @expected = expected
-        # instance_exec expected, &declarations
+        # puts "need to instance_exec"
+        instance_exec expected, &declarations
+        # puts "done instance_execing"
       end
       
       def matches? actual
-        @actual = actual
+        puts "testing in matches?"
+        # @actual = actual
         begin
+          # puts "match block: #{@match_block}"
           result = @match_block.call actual
+          # puts "got rsult: #{result}"
           return result
         rescue Exception => e
           return false
@@ -28,6 +35,7 @@ module Spec
       end
       
       def match &block
+        # puts "setting block"
         @match_block = block
       end
       

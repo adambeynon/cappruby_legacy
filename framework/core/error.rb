@@ -8,6 +8,23 @@
 
 class Exception
   
+  def initialize message
+    initWithName `#{self}.name`, reason:message, userInfo:nil
+  end
+  
+  def message= message
+    `return #{self}.message = #{message};`
+  end
+  
+  def message
+    `return #{self}.message;`
+  end
+  
+  def inspect
+    # <Exception: something>
+    "#<#{self.class.className}: #{message}>"
+  end
+  
 end
 
 class SystemExit < Exception; end
@@ -32,9 +49,9 @@ class RangeError < StandardError; end
 
 class ScriptError < Exception; end
 
-class SyntaxError < ScriptError; end
+# class SyntaxError < ScriptError; end
 
-class LoadError < SyntaxError; end
+# class LoadError < SyntaxError; end
 
 class NotImplementedError < StandardError; end
 

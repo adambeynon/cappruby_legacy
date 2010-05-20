@@ -684,11 +684,22 @@ f_block_arg_name: IDENTIFIER          {{ $$ = yytext; }}
                   }}
                 | block_arg
                   {{
-                    $$ = [null, null, $1];
+                    $$ = [[], null, $1];
                   }}
                 ;
       
-   opt_block_arg: none
+   opt_block_arg: none  {{ $$ = null; }}
+                | ',' block_arg {{ $$ = $2; }}
+                ;
+          
+       block_arg: AMPER arg
+                  {{
+                    $$ = $2;
+                  }}
+                | '&' arg
+                  {{
+                   $$ = $2;
+                  }}
                 ;
         
           assocs: label_assocs                    {{ $$ = new CappRuby.LabelAssocs($1); }}

@@ -11,8 +11,9 @@ class Class
   `var anonymous_class_count = 0;`
   
   def self.new super_class
-    puts "creating subclass #{super_class}"
+    # puts "creating subclass #{super_class}"
     `var klass = objj_allocateClassPair(#{super_class}, "AnonymousClass" + ++anonymous_class_count);
+    klass.cappruby_parent = #{super_class}.cappruby_parent;
     // force initialize
     klass.info |= CLS_INITIALIZED;
     klass.isa.info |= CLS_INITIALIZED;

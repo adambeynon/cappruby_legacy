@@ -12,7 +12,7 @@ class Object
   
   def puts *args
     args.each do |arg|
-      `((typeof CPLogPrint !== 'undefined') ? CPLogPrint : CPLogConsole)(#{arg}, 'info', #{arg});`
+      `(typeof CPLogPrint !== 'undefined') ? print(#{arg}) : CPLogConsole(#{arg}, 'info', #{arg});`
     end
     nil
   end
@@ -43,13 +43,20 @@ class Object
   end
   
   def raise exception, string
+    # puts "going to raise error.."
+    # puts exception
+    # puts exception.is_a?(Exception)
+    # puts "exception class: #{exception.class}"
     msg = ""
     if exception.is_a? String
+      # puts "string"
       msg = exception
       exc = RuntimeError.new msg
     elsif exception.is_a? Exception
+      # puts "exception"
       exc = exception
     else
+      # puts "its a class"
       msg = string # if string
       exc = exception.new msg
     end
@@ -76,6 +83,16 @@ class Object
     to_s
   end
   
+  def __send__ method, arg
+    puts "in send for #{method} from #{self.inspect}"
+    puts self
+    # meth
+    result = `cappruby_msgSend(#{self}, '#{method}:', #{arg})`
+    # result = `cappruby_msgSend(#{self}, 'inspect', #{arg})`
+    puts "result is: #{result.inspect}"
+    result
+  end
+  
   def instance_of? cls
     isMemberOfClass cls
   end
@@ -91,17 +108,17 @@ class Object
     isKindOfClass cls
   end
   
-  def instance_eval string, &block
-    if string
-      raise "Kernel.instance_eval with string not yet implemented"
-    end
+  def instance_eval &block
+    # if string
+    #   raise "Kernel.instance_eval with string not yet implemented"
+    # end
     
     # raise "no block given for instance_eval" unless block
     `return #{block}(#{self}, null);`
   end
   
-  def instance_exec *args, &block
-    
+  def instance_exec arg, &block
+    `return #{block}(#{self}, null, #{arg});`
   end
   
   def instance_variable_set ivarname, value

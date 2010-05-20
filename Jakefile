@@ -41,13 +41,13 @@ Jake.task('self_contained', function() {
     str += new CappRuby.Parser(src, file).parse();
   });
   // Capp extensions
-  File.list(File.absolute('framework/cappruby')).forEach(function(file) {
-    if (File.extension(file) !== '.rb') return;
-    print ("doing " + file);
-    var src = File.read(File.absolute('framework/cappruby/' + file));
-    str += "\n//" +  file + "\n";
-    str += new CappRuby.Parser(src, file).parse();
-  });
+  // File.list(File.absolute('framework/cappruby')).forEach(function(file) {
+  //    if (File.extension(file) !== '.rb') return;
+  //    print ("doing " + file);
+  //    var src = File.read(File.absolute('framework/cappruby/' + file));
+  //    str += "\n//" +  file + "\n";
+  //    str += new CappRuby.Parser(src, file).parse();
+  //  });
   File.write(out, str);
 });
 

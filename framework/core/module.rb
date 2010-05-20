@@ -23,7 +23,7 @@ class << CPObject
   end
   
   def === instance
-    instance.instance_of? self
+    instance.is_a? self
   end
   
   def attr attributes
@@ -49,6 +49,10 @@ class << CPObject
   
   def const_set name, value
     `return cappruby_const_set(#{self}, #{name}, #{value});`
+  end
+  
+  def module_eval &block
+    `return #{block}(#{self}, "");`
   end
   
 end

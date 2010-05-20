@@ -8,4 +8,11 @@ class NilClass
     "nil"
   end
   
+  def == other
+    `print("in nil.==");`
+    `print(#{self});`
+    `print(#{other});`
+    `return #{self} === #{other};`
+  end
+  
 end

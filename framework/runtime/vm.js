@@ -29,6 +29,7 @@ function Init_top_self() {
 };
 
 cappruby_defineclass = function(base, super_class, name, body, flag) {
+  // print("defininf class: " + name);
   var klass;
   
   // cheap hack. if its an object, then we need to get its real class
@@ -133,14 +134,17 @@ cappruby_const_defined = function(klass, id) {
 };
 
 cappruby_const_get = function(klass, id) {
-  var o = klass;
+  // we might send const_set to nil, so special case.. (it wont have a .isa etc)
+  if (klass === null || klass === undefined) klass = CPNull;
+  
   if (klass.isa.info & CLS_CLASS) klass = klass.isa;
-
+  var o = klass;
+  
   while (klass) {
     if (klass[id] !== undefined) return klass[id];
     klass = klass.super_class;
   }
-  
+
   klass = o.cappruby_parent;
   while (klass) {
     if (klass[id] !== undefined) return klass[id];
@@ -157,6 +161,7 @@ cappruby_const_get = function(klass, id) {
 };
 
 cappruby_const_at = function(klass, id) {
+  // print("looking for at: " + id);
   if (klass[id] !== undefined) return klass[id];
   throw "NameError: Uninitialized constant " + id
 };
@@ -176,8 +181,10 @@ Init_top_self();
 cappruby_msgSend = function(recv, sel) {
   var imp;
   
-  if (recv === nil || recv === undefined)
+  if (recv === null || recv === undefined) {
+    print("using CPNull for " + sel);
     imp = CPNull.method_dtable[sel];
+  }
   else
     imp = recv.isa.method_dtable[sel];
     

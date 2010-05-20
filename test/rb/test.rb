@@ -32,15 +32,36 @@ class AppController
     
   def awakeFromCib
     # This is called when the cib is done loading
+    success = true
+    success = false
+    instance_eval &@_implementation
+    instane_eval &example_implementations[example]
+    return 100
   end
   
-  def tester &adam
-    yield self if block_given?
+  def be_nil
+    Matcher.new(:be_nil, nil) do |exp|
+      self.match do |actual|
+        actual.nil?
+      end
+    end
   end
-
+  
+  def instance_exec arg, &block
+    `return #{block}(#{self}, null, #{arg});`
+  end
 end
 
 
 /^\n\.omg/
 
 "adam #{10} #{20}"
+
+
+class Animal
+  
+end
+
+class Hamster < Animal
+  
+end

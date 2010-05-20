@@ -69,6 +69,9 @@ function Init_CappRuby() {
   cappruby_const_set(cappruby_cObject, 'Regexp', reg);
   RegExp.prototype.isa = reg;
   
+  cappruby_const_set(cappruby_cObject, 'Proc', CPBlock);
+  cappruby_const_set(cappruby_cObject, 'Exception', CPException);
+  
   cappruby_const_set(cappruby_cObject, 'NilClass', CPNull);
   cappruby_const_set(cappruby_cObject, 'Boolean', CPBoolean);
   cappruby_const_set(cappruby_cObject, 'Number', CPNumber);
@@ -79,6 +82,8 @@ function Init_CappRuby() {
   cappruby_const_set(cappruby_cObject, 'String', CPString);
   cappruby_const_set(cappruby_cObject, 'Proc', CPBlock);
   cappruby_const_set(cappruby_cObject, 'Hash', CPDictionary);
+  
+  cappruby_const_set(cappruby_cObject, 'Time', CPDate);
   
   // commonjs specific classes... just instantiate here
   var cappruby_cFile = objj_allocateClassPair(CPObject, 'File');

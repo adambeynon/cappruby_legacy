@@ -28,6 +28,10 @@ class Array
   end
   
   # alias_method :<<, :push
+  def << val
+    push val
+  end
+  
   
   def each &block
     `
