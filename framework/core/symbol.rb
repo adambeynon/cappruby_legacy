@@ -6,7 +6,17 @@
 #  Copyright 2010 Adam Beynon. All rights reserved.
 # 
 
+# 
+# @class Symbol
+# 
+# The Ruby Symbol class for symbol literals. You cannot instantiate a new symbol
+# instance; an error will be thrown if you try.
+# 
 class Symbol
+  
+  def initialize
+    raise "cannot instantiate new Symbol instance"
+  end
   
   def == other
     `#{self} === #{other}` ? true : false
@@ -68,5 +78,4 @@ class Symbol
     `return ID2SYM(#{self}._sym[0].toUpperCase() +`
     `#{self}._sym.substr(1).toLowerCase());`
   end
-  
 end

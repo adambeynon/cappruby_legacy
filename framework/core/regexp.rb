@@ -27,5 +27,4 @@ class Regexp
   def inspect
     `return #{self}.toString();`
   end
-  
 end
