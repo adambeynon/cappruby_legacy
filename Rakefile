@@ -17,5 +17,4 @@ task :browser do
     end
     out.write "\n})();\n"
   end
-  
 end
