@@ -8,6 +8,10 @@ Download/git clone and then:
 
     tusk install .
 
+Or, directly from github..
+
+    tusk install http://github.com/adambeynon/cappruby/zipball/master
+
 To run REPL:
 
     cappruby
