@@ -75,7 +75,6 @@ class Symbol
   end
   
   def capitalize
-    `return ID2SYM(#{self}._sym[0].toUpperCase() +`
-    `#{self}._sym.substr(1).toLowerCase());`
+    `return ID2SYM(#{self}._sym[0].toUpperCase() + #{self}._sym.substr(1).toLowerCase());`
   end
 end

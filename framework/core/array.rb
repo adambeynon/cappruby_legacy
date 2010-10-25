@@ -13,7 +13,7 @@ class Array
   end
   
   def length
-    `return #{self}.length;`
+    `#{self}.length`
   end
   
   # alias_method :size, :length
@@ -22,47 +22,47 @@ class Array
     self
   end
   
-  def push val
-    `#{self}.push(#{val});`
+  def push(val)
+    `#{self}.push(#{val})`
     self
   end
   
   # alias_method :<<, :push
-  def << val
+  def <<(val)
     push val
   end
   
   
-  def each &block
+  def each(&block)
     `
-    for (var i = 0; i < #{self}.length; i++) {
-      try {
-        #{yield `#{self}[i]`};
+      for (var i = 0; i < #{self}.length; i++) {
+        try {
+          #{yield `#{self}[i]`};
+        }
+        catch (err) {
+          if (err._keyword == 'break')
+            return err._arg;
+          else if (err._keyword == 'next')
+            break;
+          else if (err._keyword == 'redo')
+            throw "need to redo.. (Array#each)"
+          else
+            throw(err);
+        }
       }
-      catch (err) {
-        if (err._keyword == 'break')
-          return err._arg;
-        else if (err._keyword == 'next')
-          break;
-        else if (err._keyword == 'redo')
-          throw "need to redo.. (Array#each)"
-        else
-          throw(err);
-      }
-    }
+      return self;
     `
-    self
   end
   
-  def include? obj
-    `return #{self}.indexOf(#{obj}) !== -1;`
+  def include?(obj)
+    `#{self}.indexOf(#{obj}) !== -1`
   end
   
   def empty?
-    `return #{self}.length === 0;`
+    `#{self}.length === 0`
   end
   
-  def at index
+  def at(index)
     `if (#{index} >= 0) {
       if (#{index} > #{self}.length) return nil;
       return #{self}[#{index}];

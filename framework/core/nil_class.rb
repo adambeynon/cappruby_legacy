@@ -9,10 +9,10 @@ class NilClass
   end
   
   def == other
-    `print("in nil.==");`
-    `print(#{self});`
-    `print(#{other});`
-    `return #{self} === #{other};`
+    `print("in nil.==")`
+    `print(#{self})`
+    `print(#{other})`
+    `#{self} === #{other}`
   end
   
 end

@@ -4,5 +4,5 @@
   "preload": ["cappruby/loader"],
   "description": "Ruby for Cappuccino",
   "keywords": ["ruby", "cappruby", "cappuccino"],
-  "author": "Adam Beynon. (http://adambeynon.com)"
+  "author": "Adam Beynon. (http://www.github.com/adambeynon)"
 }

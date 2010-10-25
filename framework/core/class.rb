@@ -8,7 +8,7 @@
 
 class Class
   
-  `var anonymous_class_count = 0;`
+  `anonymous_class_count = 0`
   
   def self.new super_class
     # puts "creating subclass #{super_class}"

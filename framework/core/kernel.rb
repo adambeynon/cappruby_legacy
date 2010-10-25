@@ -61,14 +61,14 @@ class Object
       exc = exception.new msg
     end
     
-    `throw #{exc};`
+    `rb_raise(#{exc})`
     self
   end
   
   # alias_method :fail, :raise
   
   def object_id
-    `return objj_msgSend(#{self}, 'UID');`
+    `objj_msgSend(#{self}, 'UID')`
   end
   
   def respond_to? method_id
@@ -114,18 +114,18 @@ class Object
     # end
     
     # raise "no block given for instance_eval" unless block
-    `return #{block}(#{self}, null);`
+    `#{block}(#{self}, null)`
   end
   
   def instance_exec arg, &block
-    `return #{block}(#{self}, null, #{arg});`
+    `#{block}(#{self}, null, #{arg})`
   end
   
   def instance_variable_set ivarname, value
-    `return #{self}[#{ivarname}] = #{value};`
+    `#{self}[#{ivarname}] = #{value}`
   end
   
   def instance_variable_get ivarname
-    `return #{self}[#{ivarname}];`
+    `#{self}[#{ivarname}]`
   end
 end

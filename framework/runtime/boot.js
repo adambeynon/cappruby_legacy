@@ -7,19 +7,27 @@
 // 
 
 // Core classes
-cappruby_cObject      = nil;
-cappruby_cBasicObject = nil;
-cappruby_cModule      = nil;
-cappruby_cClass       = nil;
-cappruby_cKernel      = nil;
+rb_object       = nil;
+rb_basic_object = nil;
+rb_module       = nil;
+rb_class        = nil;
+rb_kernel       = nil;
+rb_symbol       = nil;
 
-cappruby_cSymbol      = nil;
+
+// rb_object      = nil;
+// rb_basic_object = nil;
+// rb_module      = nil;
+// rb_class       = nil;
+// cappruby_cKernel      = nil;
+// 
+// rb_symbol      = nil;
 
 var symbol_hash = { };
 
 var CappRubySymbol = function(id) {
   this._sym = id;
-  this.isa = cappruby_cSymbol;
+  this.isa = rb_symbol;
   this.toString = function() {
     return ':' + this._sym;
   };
@@ -55,40 +63,40 @@ Boolean.prototype.isa = CPBoolean;
 
 // Initialize objects and hierarchy for cappruby
 function Init_CappRuby() {
-  cappruby_cObject = objj_getClass('CPObject');
-  cappruby_const_set(cappruby_cObject, 'Object', cappruby_cObject);
+  rb_object = objj_getClass('CPObject');
+  cappruby_const_set(rb_object, 'Object', rb_object);
   
-  cappruby_cBasicObject = objj_allocateClassPair(null, 'BasicObject');
-  cappruby_const_set(cappruby_cObject, 'BasicObject', cappruby_cBasicObject);
+  rb_basic_object = objj_allocateClassPair(null, 'BasicObject');
+  cappruby_const_set(rb_object, 'BasicObject', rb_basic_object);
   
-  cappruby_cModule = boot_defclass('Module', CPObject);
-  cappruby_cClass = boot_defclass('Class', cappruby_cModule);
+  rb_module = boot_defclass('Module', CPObject);
+  rb_class = boot_defclass('Class', rb_module);
   // cappruby_mKernel = define module...
   
   var reg = cappruby_define_class('Regexp', CPObject);
-  cappruby_const_set(cappruby_cObject, 'Regexp', reg);
+  cappruby_const_set(rb_object, 'Regexp', reg);
   RegExp.prototype.isa = reg;
   
-  cappruby_const_set(cappruby_cObject, 'Proc', CPBlock);
-  cappruby_const_set(cappruby_cObject, 'Exception', CPException);
+  cappruby_const_set(rb_object, 'Proc', CPBlock);
+  cappruby_const_set(rb_object, 'Exception', CPException);
   
-  cappruby_const_set(cappruby_cObject, 'NilClass', CPNull);
-  cappruby_const_set(cappruby_cObject, 'Boolean', CPBoolean);
-  cappruby_const_set(cappruby_cObject, 'Number', CPNumber);
+  cappruby_const_set(rb_object, 'NilClass', CPNull);
+  cappruby_const_set(rb_object, 'Boolean', CPBoolean);
+  cappruby_const_set(rb_object, 'Number', CPNumber);
   
-  cappruby_cSymbol = cappruby_define_class('Symbol', CPObject);
+  rb_symbol = cappruby_define_class('Symbol', CPObject);
   
-  cappruby_const_set(cappruby_cObject, 'Array', CPArray);
-  cappruby_const_set(cappruby_cObject, 'String', CPString);
-  cappruby_const_set(cappruby_cObject, 'Proc', CPBlock);
-  cappruby_const_set(cappruby_cObject, 'Hash', CPDictionary);
+  cappruby_const_set(rb_object, 'Array', CPArray);
+  cappruby_const_set(rb_object, 'String', CPString);
+  cappruby_const_set(rb_object, 'Proc', CPBlock);
+  cappruby_const_set(rb_object, 'Hash', CPDictionary);
   
-  cappruby_const_set(cappruby_cObject, 'Time', CPDate);
+  cappruby_const_set(rb_object, 'Time', CPDate);
   
   // commonjs specific classes... just instantiate here
   var cappruby_cFile = objj_allocateClassPair(CPObject, 'File');
-  cappruby_const_set(cappruby_cObject, 'File', cappruby_cFile);
-  cappruby_const_set(cappruby_cObject, 'Dir', objj_allocateClassPair(CPObject, 'Dir'));
+  cappruby_const_set(rb_object, 'File', cappruby_cFile);
+  cappruby_const_set(rb_object, 'Dir', objj_allocateClassPair(CPObject, 'Dir'));
 };
 
 
@@ -118,3 +126,9 @@ function objj_alloc_class(name, super_class, type, klass) {
   cappruby_const_set(CPObject, name, o);
   return o;
 };
+
+
+// main entry point..
+rb_main = function(args, named_args, main_file) {
+  console.log("need to load " + main_file);
+}

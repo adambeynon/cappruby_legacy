@@ -14,7 +14,7 @@ if (typeof global === 'undefined') {
 };
 
 // main context object
-cappruby_top_self = nil;
+rb_top_self = nil;
 
 var top_self_to_s = function() {
   
@@ -22,10 +22,10 @@ var top_self_to_s = function() {
 
 // Initialize top self
 function Init_top_self() {
-  cappruby_top_self = class_createInstance(cappruby_cObject);
+  rb_top_self = class_createInstance(rb_object);
   // set top self as a singleton to make sure we can define top level methods
   // on top self, rather than CPObject.
-  cappruby_singleton_class(cappruby_top_self);
+  cappruby_singleton_class(rb_top_self);
 };
 
 cappruby_defineclass = function(base, super_class, name, body, flag) {
@@ -114,6 +114,26 @@ cappruby_define_method = function(receiver, selector, body) {
   return class_addMethod(receiver, selector, body, []);
 };
 
+// check body arity. if we take any args, then we need to add colon selector
+// as well. If a method must take args, then it always has a colon, if all of its
+// arguments are optional, then a method is added for both cases.
+rb_def_method = function(recv, sel, body, arity) {
+  if (arity == 0) {
+    // no args, so no colon
+    return cappruby_define_method(recv, sel, body);
+  }
+  else if (arity > 0) {
+    // all required args, so only use colon (no args when calling means an error)
+    return cappruby_define_method(recv, sel + ':', body);
+  }
+  else {
+    // must be minus which means we have some optional args etc, so use both colon
+    // and non colon version
+    cappruby_define_method(recv, sel + ':', body);
+    return cappruby_define_method(recv, sel, body);
+  }
+};
+
 cappruby_define_singleton_method = function(recv, sel, body) {
   cappruby_define_method(cappruby_singleton_class(recv), sel, body);
 };
@@ -152,7 +172,7 @@ cappruby_const_get = function(klass, id) {
   }
   
   if (global[id] !== undefined) {
-    cappruby_cObject[id] = window[id];
+    rb_object[id] = window[id];
     return global[id];
   }
 
@@ -177,26 +197,29 @@ cappruby_function = function(name) {
 Init_CappRuby();
 Init_top_self();
 
+rb_raise = function(exc) {
+  throw exc;
+};
 
-cappruby_msgSend = function(recv, sel) {
+rb_call = function(recv, sel) {
   var imp;
   
   if (recv === null || recv === undefined) {
-    print("using CPNull for " + sel);
+    console.log("using CPNull for: " + sel);
     imp = CPNull.method_dtable[sel];
   }
-  else
+  // insert check here for recv.isa .. if it doesnt exist then we are sending a
+  // message to a non capp object, so we try and work out what it is. if it is
+  // a point, rect or size etc, then set the .isa to a custom object (instance
+  // of CPRect, CPPoint, CPRect etc and then send message).
+  else {
     imp = recv.isa.method_dtable[sel];
-    
+  }
+  
   if (!imp) {
-    // return cappruby_msgSend(recv, 'forward::', sel, Array.prototype.slice.call(arguments));
-    var forward = new objj_method("forward", function(self, _cmd)
-    {
-        return objj_msgSend(self, "forward::", _cmd, arguments);
-    });
-    imp = forward.method_imp;
-    // throw "method_missing: " + sel;
-  } else {
+    throw "no imp for rb_call: need method_missing : " + sel;
+  }
+  else {
     imp = imp.method_imp;
   }
   
@@ -209,4 +232,10 @@ cappruby_msgSend = function(recv, sel) {
   }
   
   throw "cappruby_msgSend: unsuported arg send length:" + (arguments.length - 2)
+};
+
+
+// call with a block..do our work then slice arguments from 1 and apply to rb_call
+rb_block_call = function(block, recv, sel) {
+  throw "rb_block_call not yet implemented"
 };

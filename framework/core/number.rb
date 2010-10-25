@@ -166,26 +166,25 @@ class Number
     `return Math.round(#{self});`
   end
   
-  def times number
+  def times(number)
     `for (var i = 0; i < #{number}; i++) {
       #{yield `i`};
-    }`
-    self
+    }
+    return #{self};`
   end
   
-  def upto stop
-    # return self if `#{stop}<#{self}`
+  def upto(stop)
     `for (var i = #{self}; i<= #{stop}; i++) {
       #{yield `i`};
-    }`
-    self
+    }
+    return #{self};`
   end
   
-  def downto stop
+  def downto(stop)
     # return self if `#{stop}>#{self}`
     `for (var i = #{self}; i >= #{stop}; i--) {
       #{yield `i`};
-    }`
-    self
+    }
+    return #{self};`
   end
 end
