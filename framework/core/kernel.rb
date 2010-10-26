@@ -10,9 +10,11 @@
 # CPObject.
 class Object
   
-  def puts *args
+  def puts(*args)
     args.each do |arg|
-      `(typeof CPLogPrint !== 'undefined') ? print(#{arg}) : CPLogConsole(#{arg}, 'info', #{arg});`
+      `(typeof CPLogPrint !== 'undefined') 
+        ? print(#{arg}) 
+        : CPLogConsole(#{arg}, 'info', #{arg})`
     end
     nil
   end

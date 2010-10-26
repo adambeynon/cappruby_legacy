@@ -87,6 +87,15 @@ Jake.task('cappruby', function() {
     str += CappRuby.parse(File.read(File.absolute('framework/core/' + core_lib + '.rb')), core_lib) + ";\n";
   });
   
+  // Capp extensions
+  File.list(File.absolute('framework/cappruby')).forEach(function(file) {
+     if (File.extension(file) !== '.rb') return;
+     print ("doing " + file);
+     var src = File.read(File.absolute('framework/cappruby/' + file));
+     str += "\n//" +  file + "\n";
+     str += CappRuby.parse(src, file) + ";\n";
+   });
+  
   File.write(out, str);
 });
 

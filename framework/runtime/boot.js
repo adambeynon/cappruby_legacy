@@ -68,6 +68,9 @@ function Init_CappRuby() {
   
   rb_basic_object = objj_allocateClassPair(null, 'BasicObject');
   cappruby_const_set(rb_object, 'BasicObject', rb_basic_object);
+  cappruby_define_singleton_method(rb_basic_object, 'new:', rb_new_with_args);
+  cappruby_define_singleton_method(rb_object, 'new:', rb_new_with_args);
+  cappruby_define_method(rb_object, 'init:', rb_init_with_args);
   
   rb_module = boot_defclass('Module', CPObject);
   rb_class = boot_defclass('Class', rb_module);
@@ -125,6 +128,23 @@ function objj_alloc_class(name, super_class, type, klass) {
   o.isa.info |= CLS_INITIALIZED;
   cappruby_const_set(CPObject, name, o);
   return o;
+};
+
+// we add .new() to existing capp classes, so that when initialzed with args we
+// can run a custom creator method. forexample, views will forward the arg to
+// initWithFrame. By default, we just call init (for compatibility)
+var rb_new_with_args = function(self, _cmd) {
+  var obj = rb_call(self, 'alloc');
+  var args = Array.prototype.slice.call(arguments);
+  args[0] = obj;
+  args[1] = 'init:';
+  return rb_call.apply(obj, args);
+};
+
+// Object#init: - by default will just call regular init method (args are just
+// ignored).
+var rb_init_with_args = function(self, _cmd) {
+  return rb_call(self, 'init');
 };
 
 

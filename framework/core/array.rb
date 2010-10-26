@@ -34,24 +34,22 @@ class Array
   
   
   def each(&block)
-    `
-      for (var i = 0; i < #{self}.length; i++) {
-        try {
-          #{yield `#{self}[i]`};
-        }
-        catch (err) {
-          if (err._keyword == 'break')
-            return err._arg;
-          else if (err._keyword == 'next')
-            break;
-          else if (err._keyword == 'redo')
-            throw "need to redo.. (Array#each)"
-          else
-            throw(err);
-        }
+    `for (var i = 0; i < #{self}.length; i++) {
+      try {
+        #{yield `#{self}[i]`};
       }
-      return self;
-    `
+      catch (err) {
+        if (err._keyword == 'break')
+          return err._arg;
+        else if (err._keyword == 'next')
+          break;
+        else if (err._keyword == 'redo')
+          throw "need to redo.. (Array#each)"
+        else
+          throw(err);
+      }
+    }
+    return self;`
   end
   
   def include?(obj)

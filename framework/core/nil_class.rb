@@ -8,6 +8,14 @@ class NilClass
     "nil"
   end
   
+  def to_s
+    ""
+  end
+  
+  def class
+    NilClass
+  end
+  
   def == other
     `print("in nil.==")`
     `print(#{self})`

@@ -13,6 +13,11 @@ if (typeof global === 'undefined') {
   global = window;
 };
 
+// our block for current method, and the method name it comes from (to make sure
+// we use the right one)
+rb_block = nil;
+rb_block_id = nil;
+
 // main context object
 rb_top_self = nil;
 
@@ -118,6 +123,7 @@ cappruby_define_method = function(receiver, selector, body) {
 // as well. If a method must take args, then it always has a colon, if all of its
 // arguments are optional, then a method is added for both cases.
 rb_def_method = function(recv, sel, body, arity) {
+  // console.log("defining " + sel);
   if (arity == 0) {
     // no args, so no colon
     return cappruby_define_method(recv, sel, body);
@@ -197,9 +203,11 @@ cappruby_function = function(name) {
 Init_CappRuby();
 Init_top_self();
 
+// main entry point for raising
 rb_raise = function(exc) {
   throw exc;
 };
+
 
 rb_call = function(recv, sel) {
   var imp;
@@ -235,7 +243,20 @@ rb_call = function(recv, sel) {
 };
 
 
+// when we try to yield with no passed block, we throw a localjump error... this
+// will do that for us (we yield to this).
+// 
+// self will be the self that the block was created with. (potentially not)
+// _cmd is a fake param used for when the block (may) be used as a method
+rb_no_block = function(self, _cmd) {
+  console.log("in here!!!");
+  throw "LocalJumpError: no block given";
+};
+
 // call with a block..do our work then slice arguments from 1 and apply to rb_call
 rb_block_call = function(block, recv, sel) {
-  throw "rb_block_call not yet implemented"
+  // throw "rb_block_call not yet implemented"
+  rb_block = block;
+  rb_block_id = sel;
+  return rb_call.apply(this, Array.prototype.slice.call(arguments, 1));
 };
