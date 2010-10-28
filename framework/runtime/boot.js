@@ -137,7 +137,10 @@ var rb_new_with_args = function(self, _cmd) {
   var obj = rb_call(self, 'alloc');
   var args = Array.prototype.slice.call(arguments);
   args[0] = obj;
+  // correct our selector
   args[1] = 'init:';
+  // make sure rb_block is now set as if it was sent to init:
+  if (rb_block_id) rb_block_id = 'init:';
   return rb_call.apply(obj, args);
 };
 

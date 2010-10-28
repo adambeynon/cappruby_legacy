@@ -89,7 +89,7 @@ class Object
     puts "in send for #{method} from #{self.inspect}"
     puts self
     # meth
-    result = `cappruby_msgSend(#{self}, '#{method}:', #{arg})`
+    result = `rb_call(#{self}, #{method} + ':', #{arg})`
     # result = `cappruby_msgSend(#{self}, 'inspect', #{arg})`
     puts "result is: #{result.inspect}"
     result

@@ -9,7 +9,9 @@ module Spec
       end
       
       def self.create_example_group name, &block
-        ExampleGroup.describe name, block
+        # puts "create example group"
+        # puts block
+        ExampleGroup.describe name, &block
       end
     end
   end

@@ -38,7 +38,8 @@ module Spec
       
       def example_finished example, error
         @example_count += 1
-        # puts "example finished"
+        puts "example finished"
+        puts error
         if error.nil?
           puts "--- PASSED"
           example_passed example

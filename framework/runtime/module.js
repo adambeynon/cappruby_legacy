@@ -12,7 +12,7 @@ cappruby_module_new = function() {
 };
 
 cappruby_define_module_id = function(id) {
-  return objj_alloc_class(id, CPObject, 1, cappruby_cModule);
+  return objj_alloc_class(id, CPObject, 1, rb_module);
 };
 
 function cappruby_define_module_under(outer, id) {

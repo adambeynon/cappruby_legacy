@@ -30,3 +30,15 @@ cappruby_yield = function(block) {
     default: throw "cappruby_yield: too many args: " + arguments.length
   }
 };
+
+rb_return = function(return_val) {
+  // throw "LocalJump: return: " + return_val;
+  throw {
+    toString: function() {
+      return "LocalJumpError: return " + return_val;
+    },
+    
+    __keyword__: "return",
+    __value__: return_val
+  };
+};

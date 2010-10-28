@@ -12,6 +12,7 @@ module Spec
     def self.run
       # require all specs
       puts "running"
+      puts options
       options.run_examples
     end
     

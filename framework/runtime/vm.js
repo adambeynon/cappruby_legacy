@@ -113,6 +113,7 @@ cappruby_class_real = function(klass) {
 };
 
 cappruby_define_method = function(receiver, selector, body) {
+  // print("defining " + selector + " on ");
   if (receiver.isa.info & CLS_CLASS) receiver = receiver.isa;
   // console.log("defininf on:");
   // console.log(receiver);
@@ -140,8 +141,21 @@ rb_def_method = function(recv, sel, body, arity) {
   }
 };
 
-cappruby_define_singleton_method = function(recv, sel, body) {
-  cappruby_define_method(cappruby_singleton_class(recv), sel, body);
+cappruby_define_singleton_method = function(recv, sel, body, arity) {
+  if (arity == 0) {
+    // no args, so no colon
+    return cappruby_define_method(cappruby_singleton_class(recv), sel, body);
+  }
+  else if (arity > 0) {
+    // all required args, so only use colon (no args when calling means an error)
+    return cappruby_define_method(cappruby_singleton_class(recv), sel + ':', body);
+  }
+  else {
+    // must be minus which means we have some optional args etc, so use both colon
+    // and non colon version
+    cappruby_define_method(cappruby_singleton_class(recv), sel + ':', body);
+    return cappruby_define_method(cappruby_singleton_class(recv), sel, body);
+  }
 };
 
 cappruby_const_set = function(klass, id, val) {
@@ -225,7 +239,8 @@ rb_call = function(recv, sel) {
   }
   
   if (!imp) {
-    throw "no imp for rb_call: need method_missing : " + sel;
+    // throw "no imp for rb_call: need method_missing : " + sel + "from " + recv;
+    throw "MethodMissing: " + recv + " does not respond to '" + sel + "'";
   }
   else {
     imp = imp.method_imp;
