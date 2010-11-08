@@ -275,3 +275,6 @@ rb_block_call = function(block, recv, sel) {
   rb_block_id = sel;
   return rb_call.apply(this, Array.prototype.slice.call(arguments, 1));
 };
+
+// global
+

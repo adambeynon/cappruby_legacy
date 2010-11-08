@@ -1,11 +1,3 @@
-# 
-#  kernel.rb
-#  cappruby
-#  
-#  Created by Adam Beynon on 2010-05-10.
-#  Copyright 2010 Adam Beynon. All rights reserved.
-# 
-
 # Currently modules dont exist, so cheat and add Kernel's methods directly into
 # CPObject.
 class Object
@@ -14,7 +6,7 @@ class Object
     args.each do |arg|
       `(typeof CPLogPrint !== 'undefined') 
         ? print(#{arg}) 
-        : CPLogConsole(#{arg}, 'info', #{arg})`
+        : CPLogConsole(#{arg}, 'log', "")`
     end
     nil
   end
@@ -23,7 +15,11 @@ class Object
     false
   end
   
-  def === other
+  def ==(other)
+    `#{self} === #{other}` ? true : false
+  end
+  
+  def ===(other)
     self == other
   end
   
@@ -32,19 +28,19 @@ class Object
     self
   end
   
-  def =~ matcher
+  def =~(matcher)
     nil
   end
   
-  def !~ matcher
+  def !~(matcher)
     self =~ obj ? false : true
   end
   
-  def eql? other
+  def eql?(other)
     `#{self} === #{other}` ? true : false
   end
   
-  def raise exception, string
+  def raise(exception, string)
     # puts "going to raise error.."
     # puts exception
     # puts exception.is_a?(Exception)
@@ -73,7 +69,7 @@ class Object
     `objj_msgSend(#{self}, 'UID')`
   end
   
-  def respond_to? method_id
+  def respond_to?(method_id)
     respondsToSelector method_id.to_s
   end
   
